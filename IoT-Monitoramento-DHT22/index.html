@@ -13,7 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
-<body class="bg-light" data-theme="light">
+<body class="bg-light">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
@@ -106,6 +106,11 @@
                                 <div class="temperature-value text-light" id="iotTemperature">
                                     25.4°C
                                 </div>
+                                <!-- Novo elemento para umidade -->
+                                <div class="text-light mt-2" id="iotHumidity" style="display: none;">
+                                    <i class="bi bi-droplet me-1"></i>
+                                    <span>65%</span>
+                                </div>
                                 <span class="badge bg-success status-badge mt-2">
                                     <i class="bi bi-check-circle me-1"></i>
                                     ESP32 Online
@@ -119,41 +124,91 @@
 
         <!-- Climate Data Cards -->
         <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="bi bi-thermometer-sun text-warning display-6 mb-3"></i>
-                        <h5 class="card-title">Temperatura Atual</h5>
-                        <h3 class="text-warning" id="currentTemp">Carregando...</h3>
-                        <small class="text-muted">
+            <!-- Temperatura Atual -->
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="card h-100 border-0 shadow-sm weather-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-thermometer-sun text-warning display-6 mb-2"></i>
+                        <h6 class="card-title mb-2">Temp. Atual</h6>
+                        <h4 class="text-warning mb-1" id="currentTemp">Carregando...</h4>
+                        <small class="text-muted d-block">
                             <i class="bi bi-geo-alt me-1"></i>
-                            <span id="currentTempLocation">baseado na localização</span>
+                            <span id="currentTempLocation">localização</span>
                         </small>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="bi bi-arrow-down-circle text-primary display-6 mb-3"></i>
-                        <h5 class="card-title">Mínima Hoje</h5>
-                        <h3 class="text-primary" id="minTemp">Carregando...</h3>
-                        <small class="text-muted">
+
+            <!-- Umidade Atual -->
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="card h-100 border-0 shadow-sm weather-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-droplet text-info display-6 mb-2"></i>
+                        <h6 class="card-title mb-2">Umidade Atual</h6>
+                        <h4 class="text-info mb-1" id="currentHumidity">Carregando...</h4>
+                        <small class="text-muted d-block">
                             <i class="bi bi-geo-alt me-1"></i>
-                            <span id="minTempLocation">baseado na localização</span>
+                            <span id="currentHumidityLocation">localização</span>
                         </small>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="bi bi-arrow-up-circle text-danger display-6 mb-3"></i>
-                        <h5 class="card-title">Máxima Hoje</h5>
-                        <h3 class="text-danger" id="maxTemp">Carregando...</h3>
-                        <small class="text-muted">
+
+            <!-- Temperatura Mínima -->
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="card h-100 border-0 shadow-sm weather-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-arrow-down-circle text-primary display-6 mb-2"></i>
+                        <h6 class="card-title mb-2">Min. Hoje</h6>
+                        <h4 class="text-primary mb-1" id="minTemp">Carregando...</h4>
+                        <small class="text-muted d-block">
                             <i class="bi bi-geo-alt me-1"></i>
-                            <span id="maxTempLocation">baseado na localização</span>
+                            <span id="minTempLocation">localização</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Umidade Mínima -->
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="card h-100 border-0 shadow-sm weather-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-droplet-half text-secondary display-6 mb-2"></i>
+                        <h6 class="card-title mb-2">Umid. Min.</h6>
+                        <h4 class="text-secondary mb-1" id="minHumidity">Carregando...</h4>
+                        <small class="text-muted d-block">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <span id="minHumidityLocation">localização</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temperatura Máxima -->
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="card h-100 border-0 shadow-sm weather-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-arrow-up-circle text-danger display-6 mb-2"></i>
+                        <h6 class="card-title mb-2">Max. Hoje</h6>
+                        <h4 class="text-danger mb-1" id="maxTemp">Carregando...</h4>
+                        <small class="text-muted d-block">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <span id="maxTempLocation">localização</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Umidade Máxima -->
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="card h-100 border-0 shadow-sm weather-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-droplet-fill text-success display-6 mb-2"></i>
+                        <h6 class="card-title mb-2">Umid. Max.</h6>
+                        <h4 class="text-success mb-1" id="maxHumidity">Carregando...</h4>
+                        <small class="text-muted d-block">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <span id="maxHumidityLocation">localização</span>
                         </small>
                     </div>
                 </div>

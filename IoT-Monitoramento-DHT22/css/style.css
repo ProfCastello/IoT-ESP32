@@ -440,3 +440,213 @@ body {
 [data-theme="dark"] .text-info {
   color: #0dcaf0 !important;
 }
+
+/* ========================================
+   MELHORIAS DE RESPONSIVIDADE MOBILE
+   ======================================== */
+
+/* Umidade no card IoT */
+#iotHumidity {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+#iotHumidity:hover {
+  opacity: 1;
+}
+
+/* Melhorias para tablets */
+@media (max-width: 992px) {
+  .temperature-value {
+    font-size: 3rem;
+  }
+
+  .sensor-icon {
+    font-size: 3.5rem;
+  }
+
+  .location-card .card-body {
+    padding: 1rem;
+  }
+}
+
+/* Melhorias para dispositivos móveis */
+@media (max-width: 768px) {
+  .temperature-value {
+    font-size: 2.5rem;
+  }
+
+  .sensor-icon {
+    font-size: 3rem;
+  }
+
+  .display-4 {
+    font-size: 2rem;
+  }
+
+  .location-card .row {
+    text-align: center;
+  }
+
+  .location-card .col-auto {
+    margin-top: 0.5rem;
+  }
+
+  .temperature-card .card-body {
+    padding: 2rem 1rem;
+  }
+
+  .temperature-card .row {
+    align-items: center;
+    text-align: center;
+  }
+
+  .temperature-card .col-4 {
+    margin-bottom: 1rem;
+  }
+
+  #iotHumidity {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .temperature-value {
+    font-size: 2rem;
+  }
+
+  .sensor-icon {
+    font-size: 2.5rem;
+  }
+
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .temperature-card .card-body {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .lead {
+    font-size: 1rem;
+  }
+
+  .navbar .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .navbar-brand {
+    font-size: 1rem;
+  }
+
+  #themeToggle {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    font-size: 0.9rem;
+  }
+
+  #themeIcon {
+    font-size: 0.9rem;
+  }
+}
+
+/* Melhorias para tema dark no mobile */
+@media (max-width: 768px) {
+  [data-theme="dark"] .temperature-card .card-body {
+    border-radius: 0.5rem;
+  }
+
+  [data-theme="dark"] .location-card {
+    border: 1px solid #404040;
+  }
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  .temperature-value,
+  .sensor-icon,
+  #themeToggle,
+  .card {
+    transition: none;
+  }
+
+  .temp-extreme .sensor-icon {
+    animation: none;
+  }
+
+  @keyframes pulse-heat {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+}
+
+/* Melhor contraste para acessibilidade */
+@media (prefers-contrast: high) {
+  .temperature-card {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  [data-theme="dark"] .card {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .status-badge {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Indicador de bateria */
+[data-battery] {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+[data-battery]:hover {
+  opacity: 1;
+}
+
+/* Cores para níveis de bateria */
+.battery-low {
+  color: #dc3545 !important;
+}
+
+.battery-medium {
+  color: #ffc107 !important;
+}
+
+.battery-high {
+  color: #28a745 !important;
+}
+
+/* Tema dark - ajustar cores da bateria */
+[data-theme="dark"] .battery-low {
+  color: #ff6b6b !important;
+}
+
+[data-theme="dark"] .battery-medium {
+  color: #ffd43b !important;
+}
+
+[data-theme="dark"] .battery-high {
+  color: #51cf66 !important;
+}
