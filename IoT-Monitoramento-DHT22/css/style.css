@@ -1,0 +1,23 @@
+.temperature-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 15px;
+}
+
+.temperature-value {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.sensor-icon {
+  font-size: 4rem;
+  color: #f8f9fa;
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+.status-badge {
+  font-size: 0.9rem;
+}
