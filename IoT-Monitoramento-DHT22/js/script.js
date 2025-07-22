@@ -226,7 +226,8 @@ async function getCurrentTemperature() {
 function updateIoTDisplay(temperature, humidity = null, battery = null) {
   iotSensorData.temperature = temperature;
   iotSensorData.humidity = humidity;
-  iotSensorData.battery = battery;
+  // Garantir que a bateria seja sempre um número inteiro
+  iotSensorData.battery = battery !== null ? Math.round(battery) : null;
 
   document.getElementById("iotTemperature").textContent =
     temperature.toFixed(1) + "°C";
@@ -267,7 +268,8 @@ function updateIoTDisplay(temperature, humidity = null, battery = null) {
   if (battery !== null) {
     const batteryElement = document.querySelector("[data-battery]");
     if (batteryElement) {
-      batteryElement.textContent = battery + "%";
+      // O valor da bateria já foi arredondado na entrada da função
+      batteryElement.textContent = iotSensorData.battery + "%";
     }
   }
 }
@@ -332,7 +334,8 @@ function updateTemperatureCardColor(temperature) {
 function simulateIoTTemperature() {
   const temp = 20 + Math.random() * 10;
   const humidity = 50 + Math.random() * 30;
-  const battery = 80 + Math.random() * 20;
+  // Gerar bateria como número inteiro entre 80 e 100
+  const battery = Math.floor(80 + Math.random() * 21);
 
   updateIoTDisplay(temp, humidity, battery);
   document.getElementById("lastUpdate").textContent = "Simulado - Agora mesmo";
