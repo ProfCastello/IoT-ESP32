@@ -1,0 +1,55 @@
+{
+  "sensor": {
+    "id": "ESP32_DHT22_001",
+    "type": "DHT22",
+    "location": "Sensor Local",
+    "status": "active"
+  },
+  "readings": [
+    {
+      "timestamp": "2025-07-22T10:00:00Z",
+      "temperature": 24.5,
+      "humidity": 62.3,
+      "battery": 87
+    },
+    {
+      "timestamp": "2025-07-22T10:05:00Z",
+      "temperature": 24.8,
+      "humidity": 61.8,
+      "battery": 87
+    },
+    {
+      "timestamp": "2025-07-22T10:10:00Z",
+      "temperature": 25.1,
+      "humidity": 60.9,
+      "battery": 86
+    },
+    {
+      "timestamp": "2025-07-22T10:15:00Z",
+      "temperature": 25.4,
+      "humidity": 60.2,
+      "battery": 86
+    },
+    {
+      "timestamp": "2025-07-22T10:20:00Z",
+      "temperature": 25.2,
+      "humidity": 59.8,
+      "battery": 85
+    }
+  ],
+  "current": {
+    "timestamp": "2025-07-22T10:25:00Z",
+    "temperature": 25.7,
+    "humidity": 59.4,
+    "battery": 85,
+    "signal_strength": -65,
+    "uptime": 145820
+  },
+  "statistics": {
+    "daily_avg": 24.8,
+    "daily_max": 26.2,
+    "daily_min": 22.1,
+    "readings_count": 288,
+    "last_maintenance": "2025-07-20T08:00:00Z"
+  }
+}

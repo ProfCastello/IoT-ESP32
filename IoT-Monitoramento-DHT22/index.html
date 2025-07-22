@@ -43,23 +43,66 @@
             </div>
         </div>
 
-        <!-- Temperature Card -->
+        <!-- Location Info Card -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8 col-md-10">
+                <div class="card border-0 shadow-sm location-card">
+                    <div class="card-body py-3">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex flex-column flex-md-row align-items-md-center">
+                                    <div class="me-md-4">
+                                        <h6 class="mb-1 text-muted">Localização para Dados Climáticos</h6>
+                                        <h5 class="mb-0" id="currentLocation">
+                                            <span class="loading-text">
+                                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                                Detectando localização...
+                                            </span>
+                                        </h5>
+                                    </div>
+                                    <div class="mt-2 mt-md-0">
+                                        <small class="text-muted">
+                                            <i class="bi bi-cloud-sun me-1"></i>
+                                            <span id="weatherSource">Carregando dados meteorológicos...</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="d-flex flex-column align-items-center">
+                                    <small class="text-muted mb-1">Fonte</small>
+                                    <span class="badge bg-success" id="locationAccuracy">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        GPS
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IoT Sensor Card -->
         <div class="row justify-content-center mb-4">
             <div class="col-lg-6 col-md-8">
-                <div class="card temperature-card shadow-lg">
+                <div class="card temperature-card temp-comfortable shadow-lg">
                     <div class="card-body text-center p-5">
                         <div class="row align-items-center">
                             <div class="col-4">
-                                <i class="bi bi-thermometer sensor-icon"></i>
+                                <i class="bi bi-cpu sensor-icon"></i>
                             </div>
                             <div class="col-8">
-                                <h3 class="card-title mb-3">Temperatura Atual</h3>
-                                <div class="temperature-value" id="temperature">
-                                    23.5°C
+                                <h3 class="card-title mb-3 text-light">Sensor IoT</h3>
+                                <div class="temperature-value text-light" id="iotTemperature">
+                                    25.4°C
                                 </div>
                                 <span class="badge bg-success status-badge mt-2">
                                     <i class="bi bi-check-circle me-1"></i>
-                                    Normal
+                                    ESP32 Online
                                 </span>
                             </div>
                         </div>
@@ -68,15 +111,18 @@
             </div>
         </div>
 
-        <!-- Statistics Cards -->
+        <!-- Climate Data Cards -->
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="bi bi-arrow-up-circle text-danger display-6 mb-3"></i>
-                        <h5 class="card-title">Máxima Hoje</h5>
-                        <h3 class="text-danger" id="maxTemp">Carregando...</h3>
-                        <small class="text-muted">baseado na localização</small>
+                        <i class="bi bi-thermometer-sun text-warning display-6 mb-3"></i>
+                        <h5 class="card-title">Temperatura Atual</h5>
+                        <h3 class="text-warning" id="currentTemp">Carregando...</h3>
+                        <small class="text-muted">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <span id="currentTempLocation">baseado na localização</span>
+                        </small>
                     </div>
                 </div>
             </div>
@@ -86,17 +132,23 @@
                         <i class="bi bi-arrow-down-circle text-primary display-6 mb-3"></i>
                         <h5 class="card-title">Mínima Hoje</h5>
                         <h3 class="text-primary" id="minTemp">Carregando...</h3>
-                        <small class="text-muted">baseado na localização</small>
+                        <small class="text-muted">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <span id="minTempLocation">baseado na localização</span>
+                        </small>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="bi bi-bar-chart text-success display-6 mb-3"></i>
-                        <h5 class="card-title">Média Hoje</h5>
-                        <h3 class="text-success">22.1°C</h3>
-                        <small class="text-muted">últimas 24h</small>
+                        <i class="bi bi-arrow-up-circle text-danger display-6 mb-3"></i>
+                        <h5 class="card-title">Máxima Hoje</h5>
+                        <h3 class="text-danger" id="maxTemp">Carregando...</h3>
+                        <small class="text-muted">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <span id="maxTempLocation">baseado na localização</span>
+                        </small>
                     </div>
                 </div>
             </div>
@@ -146,7 +198,7 @@
                                     <i class="bi bi-battery-full text-success me-3 fs-4"></i>
                                     <div>
                                         <strong>Bateria:</strong>
-                                        <span class="text-success">85%</span>
+                                        <span class="text-success" data-battery>85%</span>
                                     </div>
                                 </div>
                             </div>
