@@ -366,6 +366,10 @@ function initializeApp() {
   console.log("📡 Sensor IoT: ESP32 + DHT22 (com fallback simulado)");
   console.log("🌍 Dados Climáticos: wttr.in API (sem necessidade de chave)");
   console.log("📍 Localização: Geolocalização do navegador");
+  console.log("🌓 Tema: Detecção automática baseada no sistema operacional");
+
+  // Inicializar tema
+  initializeTheme();
 
   updateTime();
   getLocationAndWeather(); // Dados reais da API wttr.in
@@ -375,6 +379,87 @@ function initializeApp() {
   setInterval(updateTime, 1000);
   setInterval(getCurrentTemperature, 5000); // Sensor IoT - atualizar a cada 5 segundos
   setInterval(getLocationAndWeather, 300000); // API meteorológica - atualizar a cada 5 minutos
+}
+
+// ========================================
+// SISTEMA DE TEMAS DARK/LIGHT
+// ========================================
+
+// Inicializar sistema de temas
+function initializeTheme() {
+  const themeToggle = document.getElementById("themeToggle");
+
+  // Verificar preferência do sistema operacional
+  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+  // Verificar tema salvo no localStorage ou usar preferência do sistema
+  const savedTheme = localStorage.getItem("theme");
+  const systemTheme = prefersDarkScheme.matches ? "dark" : "light";
+  const defaultTheme = savedTheme || systemTheme;
+
+  // Log informativo sobre detecção do tema
+  if (savedTheme) {
+    console.log(`🎨 Tema: ${savedTheme} (salvo pelo usuário)`);
+  } else {
+    console.log(`🎨 Tema: ${systemTheme} (detectado do sistema operacional)`);
+  }
+
+  setTheme(defaultTheme);
+
+  // Event listener para o botão de tema
+  themeToggle.addEventListener("click", toggleTheme);
+
+  // Escutar mudanças na preferência do sistema (opcional)
+  prefersDarkScheme.addEventListener("change", (e) => {
+    // Só aplica automaticamente se o usuário não definiu uma preferência manual
+    if (!localStorage.getItem("theme")) {
+      const newSystemTheme = e.matches ? "dark" : "light";
+      console.log(
+        `🎨 Tema alterado automaticamente para: ${newSystemTheme} (sistema operacional)`
+      );
+      setTheme(newSystemTheme);
+    }
+  });
+}
+
+// Alternar entre temas
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  const newTheme = currentTheme === "dark" ? "light" : "dark";
+  setTheme(newTheme);
+}
+
+// Aplicar tema
+function setTheme(theme) {
+  const themeIcon = document.getElementById("themeIcon");
+  const body = document.body;
+
+  // Adicionar classe de animação antes de trocar
+  themeIcon.style.transform = "rotate(180deg) scale(0.8)";
+
+  setTimeout(() => {
+    if (theme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+      body.classList.remove("bg-light");
+      body.classList.add("bg-dark");
+
+      // Atualizar ícone para lua (tema escuro ativo)
+      themeIcon.className = "bi bi-moon-fill";
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+      body.classList.remove("bg-dark");
+      body.classList.add("bg-light");
+
+      // Atualizar ícone para sol (tema claro ativo)
+      themeIcon.className = "bi bi-sun-fill";
+    }
+
+    // Restaurar animação
+    themeIcon.style.transform = "rotate(0deg) scale(1)";
+
+    // Salvar tema no localStorage (definindo preferência manual)
+    localStorage.setItem("theme", theme);
+  }, 150);
 }
 
 // Inicializar quando o DOM estiver carregado

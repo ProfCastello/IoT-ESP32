@@ -22,6 +22,15 @@
 - **Atualização**: A cada 5 minutos
 - **Fallback**: Se a API falhar, exibe "N/A" e "Serviço indisponível"
 
+### 🌓 **Sistema de Temas Dark/Light**
+
+- **Toggle no Navbar**: Botão para alternar entre tema claro e escuro
+- **Persistência**: Tema salvo no localStorage do navegador
+- **Transições Suaves**: Animações de 0.3s ao alternar temas
+- **Cores Adaptadas**: Cards e elementos se ajustam automaticamente
+- **Temperatura**: Gradientes de temperatura mantidos em ambos os temas
+- **Acessibilidade**: Ícones intuitivos (sol/lua) para identificação
+
 ## 📁 Estrutura do Projeto
 
 ```
@@ -141,6 +150,8 @@ IoT-Monitoramento-DHT22/
 - ✅ **API meteorológica gratuita** com wttr.in (sem chave necessária)
 - ✅ **Geolocalização automática** para dados climáticos precisos
 - ✅ **Temperatura atual, máxima e mínima** baseadas na localização
+- ✅ **Cores dinâmicas** no card principal baseadas na temperatura do sensor
+- ✅ **Sistema de temas** Dark/Light com persistência no navegador
 - ✅ **Fallback inteligente** quando offline
 - ✅ **Interface responsiva** com Bootstrap
 - ✅ **Status de conexão** em tempo real
