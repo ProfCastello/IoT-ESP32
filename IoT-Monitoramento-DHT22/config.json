@@ -1,0 +1,19 @@
+{
+  "sensor": {
+    "apiUrl": "http://192.168.1.100/api/temperature",
+    "updateInterval": 5000,
+    "timeout": 3000
+  },
+  "weather": {
+    "apiKey": "YOUR_OPENWEATHER_API_KEY",
+    "updateInterval": 300000,
+    "defaultLocation": "São Paulo"
+  },
+  "simulation": {
+    "enabled": true,
+    "temperatureRange": {
+      "min": 20,
+      "max": 30
+    }
+  }
+}

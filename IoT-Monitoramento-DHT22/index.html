@@ -75,8 +75,8 @@
                     <div class="card-body text-center">
                         <i class="bi bi-arrow-up-circle text-danger display-6 mb-3"></i>
                         <h5 class="card-title">Máxima Hoje</h5>
-                        <h3 class="text-danger">26.8°C</h3>
-                        <small class="text-muted">às 14:30</small>
+                        <h3 class="text-danger" id="maxTemp">Carregando...</h3>
+                        <small class="text-muted">baseado na localização</small>
                     </div>
                 </div>
             </div>
@@ -85,8 +85,8 @@
                     <div class="card-body text-center">
                         <i class="bi bi-arrow-down-circle text-primary display-6 mb-3"></i>
                         <h5 class="card-title">Mínima Hoje</h5>
-                        <h3 class="text-primary">18.2°C</h3>
-                        <small class="text-muted">às 06:15</small>
+                        <h3 class="text-primary" id="minTemp">Carregando...</h3>
+                        <small class="text-muted">baseado na localização</small>
                     </div>
                 </div>
             </div>
@@ -116,10 +116,10 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <div class="d-flex align-items-center">
-                                    <i class="bi bi-wifi text-success me-3 fs-4"></i>
+                                    <i class="bi bi-wifi text-success me-3 fs-4" data-wifi-icon></i>
                                     <div>
                                         <strong>Conexão:</strong>
-                                        <span class="text-success">Online</span>
+                                        <span class="text-success" data-connection-status>Online</span>
                                     </div>
                                 </div>
                             </div>
@@ -137,7 +137,7 @@
                                     <i class="bi bi-arrow-clockwise text-warning me-3 fs-4"></i>
                                     <div>
                                         <strong>Última Atualização:</strong>
-                                        <span class="text-warning" id="lastUpdate">Há 2 segundos</span>
+                                        <span class="text-warning" id="lastUpdate">Carregando...</span>
                                     </div>
                                 </div>
                             </div>
