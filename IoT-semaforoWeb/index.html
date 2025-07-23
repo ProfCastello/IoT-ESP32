@@ -4,12 +4,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semáforo WEB - ESP32</title>
+    <meta name="description"
+        content="Sistema de controle de semáforo inteligente IoT com ESP32 - Interface web moderna e responsiva">
+    <meta name="keywords" content="semáforo, IoT, ESP32, controle, inteligente, automação">
+    <meta name="author" content="Sistema IoT ESP32">
+    <title>Semáforo Inteligente IoT | ESP32 Control System</title>
+
+    <!-- Preconnect para otimização -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Favicon e PWA Icons -->
+    <link rel="icon" type="image/x-icon"
+        href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzFGMkEzNyIvPgo8Y2lyY2xlIGN4PSIxNiIgY3k9IjEwIiByPSIzIiBmaWxsPSIjRUY0NDQ0Ii8+CjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjMiIGZpbGw9IiNGQkJGMjQiLz4KPGNpcmNsZSBjeD0iMTYiIGN5PSIyMiIgcj0iMyIgZmlsbD0iIzEwQjk4MSIvPgo8L3N2Zz4K">
+
+    <!-- Theme color para PWA -->
+    <meta name="theme-color" content="#0f172a">
 </head>
 
 <body>
-    <h1>Semáforo Interativo</h1>
-    
+    <!-- Indicador de carregamento -->
+    <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Inicializando Sistema IoT...</p>
+        </div>
+    </div>
+
+    <main class="container" role="main">
+        <!-- Header -->
+        <header class="row">
+            <div class="col-12">
+                <h1>
+                    <i class="fas fa-traffic-light" aria-hidden="true"></i>
+                    <span>Semáforo Inteligente IoT</span>
+                </h1>
+            </div>
+        </header>
+
+        <!-- Visualização do Semáforo -->
+        <section class="row" aria-labelledby="semaforo-title">
+            <div class="col-12">
+                <div class="semaforo-container">
+                    <div class="semaforo" role="img" aria-label="Semáforo virtual com três luzes">
+                        <div id="vermelho" class="led" role="button" tabindex="0" aria-label="LED Vermelho"
+                            aria-pressed="false" data-color="red"></div>
+                        <div id="amarelo" class="led" role="button" tabindex="0" aria-label="LED Amarelo"
+                            aria-pressed="false" data-color="yellow"></div>
+                        <div id="verde" class="led" role="button" tabindex="0" aria-label="LED Verde"
+                            aria-pressed="false" data-color="green"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Painel de Controles -->
+        <section class="row" aria-labelledby="controles-title">
+            <div class="col-12">
+                <div class="controles" id="controles" role="group" aria-labelledby="controles-title">
+                    <h2 id="controles-title" class="visually-hidden">Controles do Sistema</h2>
+
+                    <button class="btn btn-vermelho" type="button" aria-label="Ativar LED Vermelho - Sinal de Parada"
+                        data-action="red">
+                        <i class="fas fa-circle" aria-hidden="true"></i>
+                        <span>Vermelho</span>
+                    </button>
+
+                    <button class="btn btn-amarelo" type="button" aria-label="Ativar LED Amarelo - Sinal de Atenção"
+                        data-action="yellow">
+                        <i class="fas fa-circle" aria-hidden="true"></i>
+                        <span>Amarelo</span>
+                    </button>
+
+                    <button class="btn btn-verde" type="button" aria-label="Ativar LED Verde - Sinal de Passagem"
+                        data-action="green">
+                        <i class="fas fa-circle" aria-hidden="true"></i>
+                        <span>Verde</span>
+                    </button>
+
+                    <button class="btn btn-automatico" type="button" aria-label="Ativar/Desativar Modo Automático"
+                        data-action="auto" aria-pressed="false">
+                        <i class="fas fa-magic" aria-hidden="true"></i>
+                        <span>Automático</span>
+                    </button>
+
+                    <button class="btn btn-desligar" type="button" aria-label="Desligar Sistema Completo"
+                        data-action="off">
+                        <i class="fas fa-power-off" aria-hidden="true"></i>
+                        <span>Desligar</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Status do Sistema -->
+        <section class="row" aria-labelledby="status-title">
+            <div class="col-12">
+                <div class="status-container">
+                    <div class="status" role="status" aria-live="polite">
+                        <h3 id="status-title">
+                            <i class="fas fa-info-circle" aria-hidden="true"></i>
+                            <span>Status do Sistema</span>
+                        </h3>
+                        <div class="status-text" id="status" aria-label="Status atual do sistema">
+                            Sistema Inicializando...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Informações Técnicas (ocultas visualmente, acessíveis por screen readers) -->
+        <section class="visually-hidden" aria-labelledby="info-title">
+            <h2 id="info-title">Informações do Sistema</h2>
+            <p>Sistema de controle de semáforo inteligente baseado em ESP32.
+                Suporte a controle manual e automático com interface web responsiva.</p>
+            <p>Atalhos de teclado: R=Vermelho, Y=Amarelo, G=Verde, A=Automático, D=Desligar</p>
+        </section>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <!-- Script personalizado -->
+    <script src="js/script.js"></script>
+
+    <!-- Service Worker para PWA (opcional) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Registro do Service Worker seria aqui
+                console.log('Sistema IoT carregado com sucesso!');
+            });
+        }
+    </script>
 </body>
 
 </html>
