@@ -56,9 +56,39 @@
             </div>
         </header>
 
-        <!-- Visualização do Semáforo -->
-        <section class="row" aria-labelledby="semaforo-title">
+        <!-- Notificação do Sistema -->
+        <section class="row mb-4">
             <div class="col-12">
+                <div class="system-notification" id="system-notification">
+                    <div class="notification-content">
+                        <div class="notification-icon">
+                            <i class="fas fa-info-circle" id="notification-icon" aria-hidden="true"></i>
+                        </div>
+                        <div class="notification-text">
+                            <span class="notification-title" id="notification-title">Sistema Inicializando</span>
+                            <span class="notification-message" id="notification-message">Carregando interface do
+                                semáforo IoT...</span>
+                        </div>
+                        <div class="notification-close" id="notification-close" role="button" tabindex="0"
+                            aria-label="Fechar notificação">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="notification-progress" id="notification-progress"></div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Status do Dispositivo IoT -->
+        <section class="row mb-4" aria-labelledby="device-status-title">
+
+        </section>
+
+
+        <!-- Visualização do Semáforo -->
+        <section class="pt-5 row justify-content-center align-items-center" aria-labelledby="semaforo-title">
+            <div class="col-lg-4 col-md-5 d-flex justify-content-center">
                 <div class="semaforo-container">
                     <div class="semaforo" role="img" aria-label="Semáforo virtual com três luzes">
                         <div id="vermelho" class="led" role="button" tabindex="0" aria-label="LED Vermelho"
@@ -67,6 +97,81 @@
                             aria-pressed="false" data-color="yellow"></div>
                         <div id="verde" class="led" role="button" tabindex="0" aria-label="LED Verde"
                             aria-pressed="false" data-color="green"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-7 d-flex justify-content-center">
+                <div class="device-status-container">
+                    <div class="device-card" id="device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-microchip" aria-hidden="true"></i>
+                            </div>
+                            <div class="device-info">
+                                <h3 id="device-status-title">ESP32 - Semáforo IoT</h3>
+                                <div class="device-connection" id="device-connection">
+                                    <span class="connection-status" id="connection-status">Verificando...</span>
+                                    <div class="connection-indicator" id="connection-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="device-mode" id="device-mode">
+                                <span class="mode-badge" id="mode-badge">INICIALIZANDO</span>
+                            </div>
+                        </div>
+
+                        <div class="device-stats">
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-battery-three-quarters" aria-hidden="true"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Bateria</span>
+                                    <span class="stat-value" id="battery-level">---%</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-thermometer-half" aria-hidden="true"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Temperatura</span>
+                                    <span class="stat-value" id="temperature">---°C</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-wifi" aria-hidden="true"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">WiFi</span>
+                                    <span class="stat-value" id="wifi-strength">---dBm</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock" aria-hidden="true"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Uptime</span>
+                                    <span class="stat-value" id="uptime">--:--:--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alerta de Modo Simulador (mantido como referência, mas será controlado via JS) -->
+                        <div class="simulator-alert" id="simulator-alert" style="display: none;">
+                            <div class="alert-content">
+                                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                                <div class="alert-text">
+                                    <strong>Modo Simulador Ativo</strong>
+                                    <p>Dispositivo ESP32 não encontrado. Sistema funcionando em modo de simulação.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -111,22 +216,7 @@
             </div>
         </section>
 
-        <!-- Status do Sistema -->
-        <section class="row" aria-labelledby="status-title">
-            <div class="col-12">
-                <div class="status-container">
-                    <div class="status" role="status" aria-live="polite">
-                        <h3 id="status-title">
-                            <i class="fas fa-info-circle" aria-hidden="true"></i>
-                            <span>Status do Sistema</span>
-                        </h3>
-                        <div class="status-text" id="status" aria-label="Status atual do sistema">
-                            Sistema Inicializando...
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+
 
         <!-- Informações Técnicas (ocultas visualmente, acessíveis por screen readers) -->
         <section class="visually-hidden" aria-labelledby="info-title">

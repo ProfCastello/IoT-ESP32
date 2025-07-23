@@ -18,12 +18,16 @@
     </div>
 
     <div class="controles" id="controles">
-        <button class="vermelho">Vermelho</button>
-        <button class="amarelo">Amarelo</button>
-        <button class="verde">Verde</button>
-        <button class="automatico">Automágico</button>
-        <button class="desligar">Desligar</button>
+        <button class="vermelho" onclick="ligarLed('vermelho')">Vermelho</button>
+        <button class="amarelo" onclick="ligarLed('amarelo')">Amarelo</button>
+        <button class="verde" onclick="ligarLed('verde')">Verde</button>
+        <button class="automatico" onclick="ligarLed('automatico')">Automático</button>
+        <button class="desligar" onclick="ligarLed('desligar')">Desligar</button>
     </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+    <script src="./js/script.js"></script>
 </body>
 
 </html>

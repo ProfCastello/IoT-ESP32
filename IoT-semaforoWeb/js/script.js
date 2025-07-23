@@ -16,14 +16,49 @@ class SemaforoIoTController {
       desligar: document.querySelector(".btn-desligar"),
     };
 
+    // Elementos do device card
+    this.deviceElements = {
+      connectionStatus: document.getElementById("connection-status"),
+      connectionIndicator: document.getElementById("connection-indicator"),
+      modeBadge: document.getElementById("mode-badge"),
+      batteryLevel: document.getElementById("battery-level"),
+      temperature: document.getElementById("temperature"),
+      wifiStrength: document.getElementById("wifi-strength"),
+      uptime: document.getElementById("uptime"),
+      simulatorAlert: document.getElementById("simulator-alert"),
+    };
+
+    // Elementos de notificação
+    this.notificationElements = {
+      container: document.getElementById("system-notification"),
+      icon: document.getElementById("notification-icon"),
+      title: document.getElementById("notification-title"),
+      message: document.getElementById("notification-message"),
+      close: document.getElementById("notification-close"),
+      progress: document.getElementById("notification-progress"),
+    };
+
     this.status = document.getElementById("status");
     this.loadingOverlay = document.getElementById("loading-overlay");
 
     // Estado do sistema
     this.modoAutomatico = false;
     this.intervalId = null;
+    this.statusUpdateInterval = null;
     this.currentStep = 0;
     this.isInitialized = false;
+    this.isConnectedToIoT = false;
+    this.connectionAttempts = 0;
+    this.maxConnectionAttempts = 3;
+
+    // Dados simulados do dispositivo
+    this.deviceSimData = {
+      battery: 87,
+      temperature: 24.5,
+      wifiStrength: -45,
+      uptimeStart: Date.now(),
+      isOnline: false,
+    };
 
     // Configurações de sequência automática
     this.sequenciaAutomatica = [
@@ -52,8 +87,8 @@ class SemaforoIoTController {
 
   async init() {
     try {
-      // Simular carregamento inicial
-      await this.inicializar();
+      // Tentar conectar com dispositivo IoT
+      await this.tentarConexaoIoT();
 
       // Configurar event listeners
       this.configurarEventListeners();
@@ -61,17 +96,251 @@ class SemaforoIoTController {
       // Aplicar animações iniciais
       this.aplicarAnimacoesIniciais();
 
+      // Iniciar atualizações do status do dispositivo
+      this.iniciarAtualizacaoStatus();
+
       // Remover overlay de carregamento
       this.ocultarCarregamento();
 
-      // Definir status inicial
-      this.atualizarStatus("Sistema Pronto", "text-success");
+      // Definir status inicial baseado na conexão
+      if (this.isConnectedToIoT) {
+        this.atualizarStatus("Sistema Conectado - Pronto", "text-success");
+        this.notifySystemAction("iot_connected");
+      } else {
+        this.atualizarStatus("Modo Simulador - Pronto", "text-warning");
+        this.notifySystemAction("iot_disconnected");
+      }
 
       this.isInitialized = true;
-      console.log("🚦 Sistema IoT ESP32 inicializado com sucesso!");
+      console.log(
+        `🚦 Sistema IoT ESP32 inicializado - Modo: ${
+          this.isConnectedToIoT ? "Conectado" : "Simulador"
+        }`
+      );
     } catch (error) {
       console.error("❌ Erro na inicialização:", error);
       this.atualizarStatus("Erro na Inicialização", "text-danger");
+      this.atualizarDeviceStatus("error");
+    }
+  }
+
+  async tentarConexaoIoT() {
+    console.log("🔍 Tentando conectar com dispositivo ESP32...");
+    this.atualizarDeviceStatus("checking");
+
+    for (let attempt = 1; attempt <= this.maxConnectionAttempts; attempt++) {
+      try {
+        console.log(`📡 Tentativa ${attempt}/${this.maxConnectionAttempts}`);
+
+        // Simular tentativa de conexão (substitua pela chamada real)
+        const connected = await this.testarConexaoESP32();
+
+        if (connected) {
+          console.log("✅ Dispositivo ESP32 encontrado!");
+          this.isConnectedToIoT = true;
+          this.atualizarDeviceStatus("connected");
+          await this.obterDadosDispositivo();
+          return;
+        }
+
+        // Aguardar antes da próxima tentativa
+        if (attempt < this.maxConnectionAttempts) {
+          await this.delay(1000);
+        }
+      } catch (error) {
+        console.log(`❌ Tentativa ${attempt} falhou:`, error.message);
+      }
+    }
+
+    // Se chegou aqui, não conseguiu conectar
+    console.log(
+      "⚠️ Dispositivo ESP32 não encontrado. Iniciando modo simulador..."
+    );
+    this.isConnectedToIoT = false;
+    this.atualizarDeviceStatus("simulator");
+    this.iniciarSimuladorDados();
+  }
+
+  async testarConexaoESP32() {
+    // Substitua esta implementação pela chamada real para seu ESP32
+    try {
+      // Por enquanto, simular falha de conexão (para demonstrar modo simulador)
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // Simular 20% de chance de conexão bem-sucedida
+          resolve(Math.random() < 0.2);
+        }, 1500);
+      });
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async obterDadosDispositivo() {
+    try {
+      // Dados simulados mais realistas para modo conectado
+      this.deviceSimData = {
+        battery: 94,
+        temperature: 26.2,
+        wifiStrength: -38,
+        uptimeStart: Date.now() - 3 * 60 * 60 * 1000, // 3 horas de uptime
+        isOnline: true,
+      };
+    } catch (error) {
+      console.error("❌ Erro ao obter dados do dispositivo:", error);
+    }
+  }
+
+  iniciarSimuladorDados() {
+    // Dados simulados mais dinâmicos
+    this.deviceSimData = {
+      battery: 87 + Math.random() * 10, // 87-97%
+      temperature: 24 + Math.random() * 6, // 24-30°C
+      wifiStrength: -50 + Math.random() * 20, // -50 a -30 dBm
+      uptimeStart: Date.now() - Math.random() * 12 * 60 * 60 * 1000, // até 12h
+      isOnline: false,
+    };
+  }
+
+  delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  atualizarDeviceStatus(status) {
+    const { connectionStatus, connectionIndicator, modeBadge, simulatorAlert } =
+      this.deviceElements;
+
+    // Limpar classes anteriores
+    connectionIndicator.className = "connection-indicator";
+    modeBadge.className = "mode-badge";
+
+    switch (status) {
+      case "checking":
+        connectionStatus.textContent = "Verificando conexão...";
+        connectionIndicator.classList.add("checking");
+        modeBadge.textContent = "VERIFICANDO";
+        modeBadge.classList.add("initializing");
+        simulatorAlert.style.display = "none";
+        break;
+
+      case "connected":
+        connectionStatus.textContent = "Conectado ao ESP32";
+        connectionIndicator.classList.add("connected");
+        modeBadge.textContent = "CONECTADO";
+        modeBadge.classList.add("connected");
+        simulatorAlert.style.display = "none";
+        break;
+
+      case "simulator":
+        connectionStatus.textContent = "Modo Simulador";
+        connectionIndicator.classList.add("disconnected");
+        modeBadge.textContent = "SIMULADOR";
+        modeBadge.classList.add("simulator");
+        simulatorAlert.style.display = "block";
+        break;
+
+      case "error":
+        connectionStatus.textContent = "Erro de Conexão";
+        connectionIndicator.classList.add("disconnected");
+        modeBadge.textContent = "ERRO";
+        modeBadge.classList.add("simulator");
+        simulatorAlert.style.display = "block";
+        break;
+    }
+  }
+
+  iniciarAtualizacaoStatus() {
+    // Atualizar dados do dispositivo a cada 5 segundos
+    this.statusUpdateInterval = setInterval(() => {
+      this.atualizarDadosDispositivo();
+    }, 5000);
+
+    // Primeira atualização imediata
+    this.atualizarDadosDispositivo();
+  }
+
+  atualizarDadosDispositivo() {
+    const { batteryLevel, temperature, wifiStrength, uptime } =
+      this.deviceElements;
+
+    if (this.isConnectedToIoT) {
+      // Se conectado, dados mais estáveis com pequenas variações
+      this.deviceSimData.battery = Math.max(
+        85,
+        this.deviceSimData.battery + (Math.random() - 0.5) * 2
+      );
+      this.deviceSimData.temperature = Math.max(
+        20,
+        Math.min(
+          35,
+          this.deviceSimData.temperature + (Math.random() - 0.5) * 0.5
+        )
+      );
+      this.deviceSimData.wifiStrength = Math.max(
+        -60,
+        Math.min(
+          -30,
+          this.deviceSimData.wifiStrength + (Math.random() - 0.5) * 3
+        )
+      );
+    } else {
+      // Modo simulador - dados mais variáveis
+      this.deviceSimData.battery = Math.max(
+        70,
+        Math.min(100, this.deviceSimData.battery + (Math.random() - 0.5) * 3)
+      );
+      this.deviceSimData.temperature = Math.max(
+        20,
+        Math.min(40, this.deviceSimData.temperature + (Math.random() - 0.5) * 1)
+      );
+      this.deviceSimData.wifiStrength = Math.max(
+        -70,
+        Math.min(
+          -25,
+          this.deviceSimData.wifiStrength + (Math.random() - 0.5) * 5
+        )
+      );
+    }
+
+    // Atualizar elementos da interface
+    batteryLevel.textContent = `${Math.round(this.deviceSimData.battery)}%`;
+    temperature.textContent = `${this.deviceSimData.temperature.toFixed(1)}°C`;
+    wifiStrength.textContent = `${Math.round(
+      this.deviceSimData.wifiStrength
+    )}dBm`;
+
+    // Calcular e atualizar uptime
+    const uptimeMs = Date.now() - this.deviceSimData.uptimeStart;
+    const hours = Math.floor(uptimeMs / (1000 * 60 * 60));
+    const minutes = Math.floor((uptimeMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((uptimeMs % (1000 * 60)) / 1000);
+    uptime.textContent = `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+    // Atualizar ícone da bateria baseado no nível
+    this.atualizarIconeBateria(this.deviceSimData.battery);
+  }
+
+  atualizarIconeBateria(nivel) {
+    const statIcon = document.querySelector(
+      ".stat-item .stat-icon i.fa-battery-three-quarters"
+    );
+    if (!statIcon) return;
+
+    // Remover classes de bateria anteriores
+    statIcon.className = statIcon.className.replace(/fa-battery-[a-z-]+/g, "");
+
+    if (nivel > 80) {
+      statIcon.classList.add("fa-battery-full");
+    } else if (nivel > 60) {
+      statIcon.classList.add("fa-battery-three-quarters");
+    } else if (nivel > 40) {
+      statIcon.classList.add("fa-battery-half");
+    } else if (nivel > 20) {
+      statIcon.classList.add("fa-battery-quarter");
+    } else {
+      statIcon.classList.add("fa-battery-empty");
     }
   }
 
@@ -122,6 +391,20 @@ class SemaforoIoTController {
     document.addEventListener("visibilitychange", () =>
       this.handleVisibilityChange()
     );
+
+    // Event listener para fechar notificação
+    if (this.notificationElements.close) {
+      this.notificationElements.close.addEventListener("click", () => {
+        this.hideNotification();
+      });
+
+      this.notificationElements.close.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          this.hideNotification();
+        }
+      });
+    }
   }
 
   aplicarAnimacoesIniciais() {
@@ -196,6 +479,11 @@ class SemaforoIoTController {
       // Log para debug
       console.log(`🔴🟡🟢 LED ${cor.toUpperCase()} ativado`);
 
+      // Mostrar notificação (apenas em modo manual)
+      if (!isAutomatic) {
+        this.notifyLedAction(cor);
+      }
+
       // Simular comando para ESP32
       this.enviarComandoESP32(`LED_${cor.toUpperCase()}_ON`);
     }
@@ -207,6 +495,9 @@ class SemaforoIoTController {
     this.pararAutomatico();
     this.apagarTodos();
     this.atualizarStatus("Sistema Desligado", "text-muted");
+
+    // Mostrar notificação
+    this.notifySystemAction("system_off");
 
     // Vibração longa para desligar
     if (navigator.vibrate) {
@@ -249,6 +540,9 @@ class SemaforoIoTController {
 
     this.atualizarStatus("Modo Automático Iniciado", "text-info");
 
+    // Mostrar notificação
+    this.notifySystemAction("automatico_on");
+
     const executarSequencia = () => {
       if (!this.modoAutomatico) return;
 
@@ -287,6 +581,10 @@ class SemaforoIoTController {
     botaoAuto.setAttribute("aria-pressed", "false");
 
     this.atualizarStatus("Modo Manual Ativo", "text-primary");
+
+    // Mostrar notificação
+    this.notifySystemAction("automatico_off");
+
     console.log("⏹️ Modo automático parado");
     this.enviarComandoESP32("AUTO_MODE_OFF");
   }
@@ -430,6 +728,10 @@ class SemaforoIoTController {
       clearTimeout(this.intervalId);
     }
 
+    if (this.statusUpdateInterval) {
+      clearInterval(this.statusUpdateInterval);
+    }
+
     // Remover event listeners
     document.removeEventListener("keydown", this.handleKeyboardShortcuts);
     window.removeEventListener(
@@ -444,15 +746,147 @@ class SemaforoIoTController {
     console.log("🧹 Sistema limpo e destruído");
   }
 
+  // Sistema de Notificações
+  showNotification(
+    title,
+    message,
+    type = "info",
+    autoHide = true,
+    duration = 4000
+  ) {
+    if (!this.notificationElements.container) return;
+
+    // Atualizar conteúdo
+    this.notificationElements.title.textContent = title;
+    this.notificationElements.message.textContent = message;
+
+    // Definir ícone baseado no tipo
+    const icons = {
+      info: "fas fa-info-circle",
+      success: "fas fa-check-circle",
+      warning: "fas fa-exclamation-triangle",
+      error: "fas fa-times-circle",
+    };
+
+    this.notificationElements.icon.className = icons[type] || icons.info;
+
+    // Remover classes de tipo anteriores
+    this.notificationElements.container.classList.remove(
+      "success",
+      "warning",
+      "error"
+    );
+
+    // Adicionar classe do tipo atual
+    if (type !== "info") {
+      this.notificationElements.container.classList.add(type);
+    }
+
+    // Resetar display e mostrar notificação
+    this.notificationElements.container.style.display = "block";
+    this.notificationElements.container.classList.remove("hide");
+    this.notificationElements.container.classList.add("show");
+
+    // Configurar auto-hide
+    if (autoHide) {
+      this.notificationElements.container.classList.add("auto-hide");
+
+      setTimeout(() => {
+        this.hideNotification();
+      }, duration);
+    } else {
+      this.notificationElements.container.classList.remove("auto-hide");
+    }
+
+    console.log(`📢 Notificação (${type}): ${title} - ${message}`);
+  }
+
+  hideNotification() {
+    if (!this.notificationElements.container) return;
+
+    // Usar posicionamento fixo que não afeta o layout da página
+    this.notificationElements.container.classList.remove("show", "auto-hide");
+    this.notificationElements.container.classList.add("hide");
+
+    // Após a animação, remover da tela sem afetar layout
+    setTimeout(() => {
+      this.notificationElements.container.style.display = "none";
+      this.notificationElements.container.classList.remove("hide");
+    }, 300);
+  }
+
+  // Métodos de notificação específicos
+  notifyLedAction(cor) {
+    const messages = {
+      vermelho: {
+        title: "LED Vermelho Ativado",
+        message: "Sinal de parada ativo",
+        type: "error",
+      },
+      amarelo: {
+        title: "LED Amarelo Ativado",
+        message: "Sinal de atenção ativo",
+        type: "warning",
+      },
+      verde: {
+        title: "LED Verde Ativado",
+        message: "Sinal livre ativo",
+        type: "success",
+      },
+    };
+
+    const config = messages[cor];
+    if (config) {
+      this.showNotification(config.title, config.message, config.type);
+    }
+  }
+
+  notifySystemAction(action) {
+    const messages = {
+      automatico_on: {
+        title: "Modo Automático Ativado",
+        message: "Sistema iniciou sequência automática",
+        type: "info",
+      },
+      automatico_off: {
+        title: "Modo Automático Desativado",
+        message: "Sistema voltou ao controle manual",
+        type: "info",
+      },
+      system_off: {
+        title: "Sistema Desligado",
+        message: "Todos os LEDs foram desativados",
+        type: "warning",
+      },
+      iot_connected: {
+        title: "ESP32 Conectado",
+        message: "Dispositivo IoT encontrado e conectado",
+        type: "success",
+      },
+      iot_disconnected: {
+        title: "Modo Simulador",
+        message: "ESP32 não encontrado, usando simulação",
+        type: "warning",
+      },
+    };
+
+    const config = messages[action];
+    if (config) {
+      this.showNotification(config.title, config.message, config.type);
+    }
+  }
+
   // Métodos de diagnóstico
   obterStatusSistema() {
     return {
       inicializado: this.isInitialized,
+      conectadoIoT: this.isConnectedToIoT,
       modoAutomatico: this.modoAutomatico,
       ledAtivo:
         Object.entries(this.leds).find(([_, led]) =>
           led.classList.contains("ativo")
         )?.[0] || "nenhum",
+      dadosDispositivo: this.deviceSimData,
       timestamp: new Date().toISOString(),
     };
   }
@@ -479,6 +913,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }, index * 1000);
       });
     },
+    forceConnect: () => {
+      console.log("🔧 Forçando modo conectado...");
+      window.semaforoIoT.isConnectedToIoT = true;
+      window.semaforoIoT.atualizarDeviceStatus("connected");
+      window.semaforoIoT.obterDadosDispositivo();
+    },
+    forceSimulator: () => {
+      console.log("🔧 Forçando modo simulador...");
+      window.semaforoIoT.isConnectedToIoT = false;
+      window.semaforoIoT.atualizarDeviceStatus("simulator");
+      window.semaforoIoT.iniciarSimuladorDados();
+    },
+    deviceData: () => window.semaforoIoT.deviceSimData,
   };
 });
 

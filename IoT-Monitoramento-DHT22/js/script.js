@@ -799,3 +799,100 @@ function setTheme(theme, animate = true) {
 
 // Inicializar quando o DOM estiver carregado
 document.addEventListener("DOMContentLoaded", initializeApp);
+
+// Configurações MQTT
+const MQTT_HOST = "broker.hivemq.com";
+const MQTT_PORT = 8884;
+const MQTT_TOPIC_TEMPERATURA = "proeducador7903/temperatura";
+let clientWeb = null;
+let isConnected = false;
+let reconnectTimeout = null;
+
+// Inicializar cliente MQTT
+function initMQTT() {
+  const clientId = "Esp32" + Math.floor(Math.random() * 900) + 100;
+  clientWeb = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, clientId);
+
+  // Configurar callbacks
+  clientWeb.onConnectionLost = handleConnectionLost;
+  clientWeb.onMessageArrived = handleMessageArrived;
+
+  connectMQTT();
+}
+
+// Conectar ao broker MQTT
+function connectMQTT() {
+  clientWeb.connect({
+    useSSL: true,
+    timeout: 10,
+    onSuccess: handleConnectSuccess,
+    onFailure: handleConnectFailure,
+  });
+}
+
+// Sucesso na conexão
+function handleConnectSuccess() {
+  console.log("Conectado ao broker MQTT");
+  alert("Conectado ao broker MQTT");
+  isConnected = true;
+
+  // Limpar timeout de reconexão
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+
+  // Assinar tópico
+  clientWeb.subscribe(MQTT_TOPIC_TEMPERATURA);
+}
+
+// Falha na conexão
+function handleConnectFailure(error) {
+  console.error("Falha na conexão: " + error.errorMessage);
+  alert("Falha na conexão: " + error.errorMessage);
+  isConnected = false;
+
+  scheduleReconnect();
+}
+
+// Reconexão
+function scheduleReconnect() {
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout);
+  }
+
+  reconnectTimeout = setTimeout(() => {
+    console.log("Tentando reconectar...");
+    connectMQTT();
+  }, 5000);
+}
+
+// Conexão perdida
+function handleConnectionLost(responseObject) {
+  if (responseObject.errorCode !== 0) {
+    console.error("Conexão perdida: " + responseObject.errorMessage);
+    alert("Conexão perdida. Tentando reconectar...");
+    isConnected = false;
+
+    scheduleReconnect();
+  }
+}
+
+// Mensagem recebida
+function handleMessageArrived(message) {
+  const payload = message.payloadString;
+  console.log(`Mensagem recebida: ${payload}`);
+
+  try {
+    const data = JSON.parse(payload);
+    document.getElementById(
+      "currentTemp"
+    ).textContent = `${data.temperatura}°C`;
+    document.getElementById("currentHumidity").textContent = `${data.umidade}%`;
+  } catch (error) {
+    console.error("Erro ao processar mensagem MQTT: ", error);
+  }
+}
+
+// Inicializar sistema
+initMQTT();
