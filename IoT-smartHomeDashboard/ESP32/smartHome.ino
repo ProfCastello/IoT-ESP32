@@ -20,7 +20,7 @@ const char *mqtt_pass = "";                    // Senha (vazio para broker públ
 // ====================================
 // CONFIGURAÇÕES DO SENSOR DHT22
 // ====================================
-#define DHT_PIN 4      // Pino do sensor DHT22
+#define DHT_PIN 12     // Pino do sensor DHT22
 #define DHT_TYPE DHT22 // Tipo do sensor
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -28,8 +28,8 @@ DHT dht(DHT_PIN, DHT_TYPE);
 // DEFINIÇÃO DOS PINOS
 // ====================================
 // LEDs simulando lâmpadas
-#define LED_SALA 17   // GPIO2 - LED da sala
-#define LED_QUARTO 16 // GPIO5 - LED do quarto
+#define LED_SALA 17   // GPIO17 - LED da sala
+#define LED_QUARTO 16 // GPIO16 - LED do quarto
 
 // Relés para dispositivos
 #define RELE_TOMADA_COZINHA 18  // GPIO18 - Relé da tomada
@@ -40,7 +40,7 @@ DHT dht(DHT_PIN, DHT_TYPE);
 #define PORTAO_PIN 22 // GPIO22 - Controle do portão
 
 // LED de status
-#define LED_STATUS 2 // GPIO23 - LED de status da conexão
+#define LED_STATUS 2 // GPIO2 - LED de status da conexão
 
 // ====================================
 // OBJETOS GLOBAIS
@@ -56,13 +56,15 @@ unsigned long lastHeartbeat = 0;               // Último heartbeat
 const unsigned long sensorInterval = 30000;    // Intervalo de leitura do sensor (30s)
 const unsigned long heartbeatInterval = 60000; // Intervalo de heartbeat (60s)
 
-// Estados dos dispositivos
+// Estados dos dispositivos (true = HIGH/on, false = LOW/off)
+// Usamos o estado da variável para controlar o que foi definido
+// e o digitalRead para saber o estado real do pino.
 bool estadoLuzSala = false;
 bool estadoLuzQuarto = false;
 bool estadoTomadaCozinha = false;
 bool estadoIrrigacao = false;
 bool estadoArCondicionado = false;
-bool estadoPortao = false;
+bool estadoPortao = false; // Para o portão, 'false' pode ser fechado, 'true' pode ser aberto ou o último estado.
 
 // ====================================
 // SETUP - CONFIGURAÇÃO INICIAL
@@ -111,12 +113,13 @@ void setupPins()
     pinMode(LED_STATUS, OUTPUT);
 
     // Inicializa todos os dispositivos desligados
+    // Garante que os pinos estejam em um estado conhecido no boot
     digitalWrite(LED_SALA, LOW);
     digitalWrite(LED_QUARTO, LOW);
     digitalWrite(RELE_TOMADA_COZINHA, LOW);
     digitalWrite(RELE_IRRIGACAO, LOW);
     digitalWrite(RELE_AR_CONDICIONADO, LOW);
-    digitalWrite(PORTAO_PIN, LOW);
+    digitalWrite(PORTAO_PIN, LOW); // Portão normalmente fechado ou sem pulso
 
     Serial.println("Pinos configurados");
 }
@@ -204,86 +207,111 @@ void callbackMQTT(char *topic, byte *payload, unsigned int length)
 // ====================================
 void processarComando(String topic, String comando)
 {
+    // Variável para armazenar o estado desejado
+    bool desiredState;
+    bool stateChanged = false; // Flag para indicar se o estado físico mudou
+
     // Lâmpada da Sala
-    if (topic == "smarthome790/sala/luz1/on")
+    if (topic == "smarthome790/sala/luz1")
     {
-        estadoLuzSala = true;
-        digitalWrite(LED_SALA, HIGH);
-        Serial.println("Lâmpada da sala: LIGADA");
-    }
-    else if (topic == "smarthome790/sala/luz1/off")
-    {
-        estadoLuzSala = false;
-        digitalWrite(LED_SALA, LOW);
-        Serial.println("Lâmpada da sala: DESLIGADA");
+        desiredState = (comando == "on");
+        if (estadoLuzSala != desiredState)
+        { // Apenas atualiza se o estado lógico mudar
+            estadoLuzSala = desiredState;
+            digitalWrite(LED_SALA, estadoLuzSala ? HIGH : LOW);
+            stateChanged = true;
+            Serial.print("Lâmpada da sala: ");
+            Serial.println(estadoLuzSala ? "LIGADA" : "DESLIGADA");
+        }
+        // Publica o estado atualizado para garantir consistência
+        if (stateChanged)
+        { // Publica apenas se o estado foi alterado
+            client.publish("smarthome790/sala/luz1", estadoLuzSala ? "on" : "off", true);
+        }
     }
 
     // Lâmpada do Quarto
-    else if (topic == "smarthome790/quarto/luz1/on")
+    else if (topic == "smarthome790/quarto/luz1")
     {
-        estadoLuzQuarto = true;
-        digitalWrite(LED_QUARTO, HIGH);
-        Serial.println("Lâmpada do quarto: LIGADA");
-    }
-    else if (topic == "smarthome790/quarto/luz1/off")
-    {
-        estadoLuzQuarto = false;
-        digitalWrite(LED_QUARTO, LOW);
-        Serial.println("Lâmpada do quarto: DESLIGADA");
+        desiredState = (comando == "on");
+        if (estadoLuzQuarto != desiredState)
+        {
+            estadoLuzQuarto = desiredState;
+            digitalWrite(LED_QUARTO, estadoLuzQuarto ? HIGH : LOW);
+            stateChanged = true;
+            Serial.print("Lâmpada do quarto: ");
+            Serial.println(estadoLuzQuarto ? "LIGADA" : "DESLIGADA");
+        }
+        if (stateChanged)
+        {
+            client.publish("smarthome790/quarto/luz1", estadoLuzQuarto ? "on" : "off", true);
+        }
     }
 
     // Tomada da Cozinha
-    else if (topic == "smarthome790/cozinha/tomada1/on")
+    else if (topic == "smarthome790/cozinha/tomada1")
     {
-        estadoTomadaCozinha = true;
-        digitalWrite(RELE_TOMADA_COZINHA, HIGH);
-        Serial.println("Tomada da cozinha: LIGADA");
-    }
-    else if (topic == "smarthome790/cozinha/tomada1/off")
-    {
-        estadoTomadaCozinha = false;
-        digitalWrite(RELE_TOMADA_COZINHA, LOW);
-        Serial.println("Tomada da cozinha: DESLIGADA");
+        desiredState = (comando == "on");
+        if (estadoTomadaCozinha != desiredState)
+        {
+            estadoTomadaCozinha = desiredState;
+            digitalWrite(RELE_TOMADA_COZINHA, estadoTomadaCozinha ? HIGH : LOW);
+            stateChanged = true;
+            Serial.print("Tomada da cozinha: ");
+            Serial.println(estadoTomadaCozinha ? "LIGADA" : "DESLIGADA");
+        }
+        if (stateChanged)
+        {
+            client.publish("smarthome790/cozinha/tomada1", estadoTomadaCozinha ? "on" : "off", true);
+        }
     }
 
     // Sistema de Irrigação
-    else if (topic == "smarthome790/jardim/irrigacao/on")
+    else if (topic == "smarthome790/jardim/irrigacao")
     {
-        estadoIrrigacao = true;
-        digitalWrite(RELE_IRRIGACAO, HIGH);
-        Serial.println("Irrigação: ATIVADA");
-    }
-    else if (topic == "smarthome790/jardim/irrigacao/off")
-    {
-        estadoIrrigacao = false;
-        digitalWrite(RELE_IRRIGACAO, LOW);
-        Serial.println("Irrigação: DESATIVADA");
+        desiredState = (comando == "on");
+        if (estadoIrrigacao != desiredState)
+        {
+            estadoIrrigacao = desiredState;
+            digitalWrite(RELE_IRRIGACAO, estadoIrrigacao ? HIGH : LOW);
+            stateChanged = true;
+            Serial.print("Irrigação: ");
+            Serial.println(estadoIrrigacao ? "ATIVADA" : "DESATIVADA");
+        }
+        if (stateChanged)
+        {
+            client.publish("smarthome790/jardim/irrigacao", estadoIrrigacao ? "on" : "off", true);
+        }
     }
 
     // Portão da Garagem
-    else if (topic == "smarthome790/garagem/portao/on")
+    else if (topic == "smarthome790/garagem/portao")
     {
-        estadoPortao = true;
-        acionarPortao();
-    }
-    else if (topic == "smarthome790/garagem/portao/off")
-    {
-        estadoPortao = false;
-        acionarPortao();
+        if (comando == "toggle" || comando == "on")
+        {
+            // O portão é um acionamento momentâneo.
+            // A lógica de estado para ele é um pouco diferente.
+            // Publicamos o estado 'open' ou 'closed' após o pulso.
+            acionarPortao();
+        }
     }
 
     // Ar Condicionado
-    else if (topic == "smarthome790/sala/ar/on")
+    else if (topic == "smarthome790/sala/ar")
     {
-        estadoArCondicionado = true;
-        digitalWrite(RELE_AR_CONDICIONADO, HIGH);
-        Serial.println("Ar condicionado: LIGADO");
-    }
-    else if (topic == "smarthome790/sala/ar/off")
-    {
-        estadoArCondicionado = false;
-        digitalWrite(RELE_AR_CONDICIONADO, LOW);
-        Serial.println("Ar condicionado: DESLIGADO");
+        desiredState = (comando == "on");
+        if (estadoArCondicionado != desiredState)
+        {
+            estadoArCondicionado = desiredState;
+            digitalWrite(RELE_AR_CONDICIONADO, estadoArCondicionado ? HIGH : LOW);
+            stateChanged = true;
+            Serial.print("Ar condicionado: ");
+            Serial.println(estadoArCondicionado ? "LIGADO" : "DESLIGADO");
+        }
+        if (stateChanged)
+        {
+            client.publish("smarthome790/sala/ar", estadoArCondicionado ? "on" : "off", true);
+        }
     }
 }
 
@@ -294,15 +322,16 @@ void acionarPortao()
 {
     Serial.println("Acionando portão da garagem...");
 
-    // Simula abertura/fechamento do portão
+    // Inverte o estado lógico do portão (simula abertura/fechamento)
     estadoPortao = !estadoPortao;
 
-    // Pulso no relé (simula acionamento)
+    // Pulso no relé (simula acionamento de um motor/trava)
     digitalWrite(PORTAO_PIN, HIGH);
     delay(500); // Pulso de 500ms
     digitalWrite(PORTAO_PIN, LOW);
 
-    // Publica novo estado
+    // Publica o novo estado do portão
+    // Note que para o portão, 'open' e 'closed' são estados, não 'on/off'
     client.publish("smarthome790/garagem/portao", estadoPortao ? "open" : "closed", true);
 
     Serial.print("Portão: ");
@@ -331,7 +360,7 @@ void reconnectMQTT()
             // Subscreve aos tópicos de comando
             subscribeTopics();
 
-            // Publica status inicial
+            // Publica status inicial (garante que os estados sejam reportados ao broker)
             publicarStatusInicial();
         }
         else
@@ -349,18 +378,12 @@ void reconnectMQTT()
 // ====================================
 void subscribeTopics()
 {
-    client.subscribe("smarthome790/sala/luz1/on");
-    client.subscribe("smarthome790/sala/luz1/off");
-    client.subscribe("smarthome790/quarto/luz1/on");
-    client.subscribe("smarthome790/quarto/luz1/off");
-    client.subscribe("smarthome790/cozinha/tomada1/on");
-    client.subscribe("smarthome790/cozinha/tomada1/off");
-    client.subscribe("smarthome790/jardim/irrigacao/on");
-    client.subscribe("smarthome790/jardim/irrigacao/off");
-    client.subscribe("smarthome790/garagem/portao/on");
-    client.subscribe("smarthome790/garagem/portao/off");
-    client.subscribe("smarthome790/sala/ar/on");
-    client.subscribe("smarthome790/sala/ar/off");
+    client.subscribe("smarthome790/sala/luz1");
+    client.subscribe("smarthome790/quarto/luz1");
+    client.subscribe("smarthome790/cozinha/tomada1");
+    client.subscribe("smarthome790/jardim/irrigacao");
+    client.subscribe("smarthome790/garagem/portao");
+    client.subscribe("smarthome790/sala/ar");
 
     Serial.println("Inscrito em todos os tópicos de comando");
 }
@@ -370,24 +393,13 @@ void subscribeTopics()
 // ====================================
 void publicarStatusInicial()
 {
-    // Publica estado atual de todos os dispositivos
-    client.publish("smarthome790/sala/luz1/on", estadoLuzSala ? "on" : "off", true);
-    client.publish("smarthome790/sala/luz1/off", estadoLuzSala ? "off" : "on", true);
-
-    client.publish("smarthome790/quarto/luz1/on", estadoLuzQuarto ? "on" : "off", true);
-    client.publish("smarthome790/quarto/luz1/off", estadoLuzQuarto ? "off" : "on", true);
-
-    client.publish("smarthome790/cozinha/tomada1/on", estadoTomadaCozinha ? "on" : "off", true);
-    client.publish("smarthome790/cozinha/tomada1/off", estadoTomadaCozinha ? "off" : "on", true);
-
-    client.publish("smarthome790/jardim/irrigacao/on", estadoIrrigacao ? "on" : "off", true);
-    client.publish("smarthome790/jardim/irrigacao/off", estadoIrrigacao ? "off" : "on", true);
-
-    client.publish("smarthome790/sala/ar/on", estadoArCondicionado ? "on" : "off", true);
-    client.publish("smarthome790/sala/ar/off", estadoArCondicionado ? "off" : "on", true);
-
-    client.publish("smarthome790/garagem/portao/on", estadoPortao ? "open" : "closed", true);
-    client.publish("smarthome790/garagem/portao/off", estadoPortao ? "closed" : "open", true);
+    // Publica estado atual de todos os dispositivos baseado nas variáveis de estado
+    client.publish("smarthome790/sala/luz1", estadoLuzSala ? "on" : "off", true);
+    client.publish("smarthome790/quarto/luz1", estadoLuzQuarto ? "on" : "off", true);
+    client.publish("smarthome790/cozinha/tomada1", estadoTomadaCozinha ? "on" : "off", true);
+    client.publish("smarthome790/jardim/irrigacao", estadoIrrigacao ? "on" : "off", true);
+    client.publish("smarthome790/sala/ar", estadoArCondicionado ? "on" : "off", true);
+    client.publish("smarthome790/garagem/portao", estadoPortao ? "open" : "closed", true);
 
     // Publica informações do sistema
     String infoMsg = "{\"ip\":\"" + WiFi.localIP().toString() + "\",\"rssi\":" + WiFi.RSSI() + ",\"uptime\":" + millis() + "}";
@@ -497,7 +509,7 @@ void loop()
     {
         Serial.println("WiFi desconectado! Tentando reconectar...");
         setupWiFi();
-        return;
+        return; // Retorna para que o loop comece do zero após a reconexão
     }
 
     // Verifica conexão MQTT
