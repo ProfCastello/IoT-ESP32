@@ -136,6 +136,7 @@ class UIController {
     const deviceId = switch_.id.replace("switch_", "");
     const isOn = switch_.checked;
     const message = isOn ? "on" : "off";
+    const deviceName = this.getDeviceName(deviceId);
 
     // Adiciona animação de loading
     this.addLoadingState(switch_);
@@ -146,13 +147,28 @@ class UIController {
       this.updateDeviceState(deviceId, isOn ? "on" : "off");
       this.updateDeviceUI(deviceId, isOn ? "on" : "off");
 
+      // Mostra notificação de sucesso
+      if (window.notificationSystem) {
+        window.notificationSystem.deviceControl(
+          deviceName,
+          isOn ? "ligado" : "desligado"
+        );
+      }
+
       // Remove loading após delay
       setTimeout(() => this.removeLoadingState(switch_), 500);
     } else {
       // Reverte o switch se falhou
       switch_.checked = !isOn;
       this.removeLoadingState(switch_);
-      this.showToast("Erro", "Falha ao enviar comando", "error");
+
+      // Mostra notificação de erro
+      if (window.notificationSystem) {
+        window.notificationSystem.deviceError(
+          deviceName,
+          "Falha ao enviar comando"
+        );
+      }
     }
   }
 
@@ -164,6 +180,7 @@ class UIController {
     const topic = button.dataset.topic;
     const message = button.dataset.message || "toggle";
     const deviceId = button.closest(".device-card").dataset.device;
+    const deviceName = this.getDeviceName(deviceId);
 
     // Adiciona animação de loading
     this.addLoadingState(button);
@@ -177,10 +194,22 @@ class UIController {
       this.updateDeviceState(deviceId, newState);
       this.updateDeviceUI(deviceId, newState);
 
+      // Mostra notificação de sucesso
+      if (window.notificationSystem) {
+        window.notificationSystem.deviceControl(deviceName, "acionado");
+      }
+
       setTimeout(() => this.removeLoadingState(button), 500);
     } else {
       this.removeLoadingState(button);
-      this.showToast("Erro", "Falha ao enviar comando", "error");
+
+      // Mostra notificação de erro
+      if (window.notificationSystem) {
+        window.notificationSystem.deviceError(
+          deviceName,
+          "Falha ao enviar comando"
+        );
+      }
     }
   }
 
@@ -419,16 +448,16 @@ class UIController {
     if (deviceId) {
       this.updateDeviceUI(deviceId, message.toLowerCase());
 
-      // Mostra notificação se necessário
-      if (message.toLowerCase() === "on" || message.toLowerCase() === "off") {
-        this.showToast(
-          "Dispositivo Atualizado",
-          `${this.getDeviceName(deviceId)} foi ${
-            message.toLowerCase() === "on" ? "ligado" : "desligado"
-          }`,
-          "info"
-        );
-      }
+      // // Mostra notificação se necessário
+      // if (message.toLowerCase() === "on" || message.toLowerCase() === "off") {
+      //   this.showToast(
+      //     "Dispositivo Atualizado",
+      //     `${this.getDeviceName(deviceId)} foi ${
+      //       message.toLowerCase() === "on" ? "ligado" : "desligado"
+      //     }`,
+      //     "info"
+      //   );
+      //}
     }
   }
 

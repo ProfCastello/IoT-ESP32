@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste MQTT - Smart Home Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 Teste MQTT - Smart Home Dashboard</h1>
+
+        <div id="status"></div>
+
+        <div class="controls">
+            <h3>Configurações MQTT</h3>
+            <label>Broker: <input type="text" id="broker" value="broker.hivemq.com"></label><br>
+            <label>Porta: <input type="number" id="port" value="8884"></label><br>
+            <label>Client ID: <input type="text" id="clientId" value=""></label><br>
+            <label>SSL: <input type="checkbox" id="useSSL" checked></label><br>
+        </div>
+
+        <div class="controls">
+            <button onclick="connectMQTT()">🔌 Conectar</button>
+            <button onclick="disconnectMQTT()">❌ Desconectar</button>
+            <button onclick="testPublish()">📤 Testar Envio</button>
+            <button onclick="clearLog()">🗑️ Limpar Log</button>
+        </div>
+
+        <div class="controls">
+            <h3>Teste Rápido</h3>
+            <label>Tópico:
+                <select id="testTopic">
+                    <option value="smarthome790/sala/luz1">smarthome790/sala/luz1</option>
+                    <option value="smarthome790/quarto/luz1">smarthome790/quarto/luz1</option>
+                    <option value="smarthome790/cozinha/tomada1">smarthome790/cozinha/tomada1</option>
+                    <option value="smarthome790/jardim/irrigacao">smarthome790/jardim/irrigacao</option>
+                    <option value="smarthome790/garagem/portao">smarthome790/garagem/portao</option>
+                    <option value="smarthome790/sala/ar">smarthome790/sala/ar</option>
+                </select>
+            </label>
+            <label>Mensagem:
+                <select id="testMessage">
+                    <option value="on">on</option>
+                    <option value="off">off</option>
+                    <option value="toggle">toggle</option>
+                </select>
+            </label>
+            <button onclick="publishTest()">📤 Publicar</button>
+        </div>
+
+        <div id="details">
+            <h3>Log de Conexão:</h3>
+            <pre id="log"></pre>
+        </div>
+
+        <hr style="margin: 30px 0;">
+        <p><a href="index.html">← Voltar para o Dashboard</a></p>
+    </div>
+
+    <!-- Paho MQTT -->
+    <script src="https://unpkg.com/paho-mqtt@1.1.0/paho-mqtt.js"></script>
+
+    <script>
+        let client = null;
+        let isConnected = false;
+        const logElement = document.getElementById('log');
+        const statusDiv = document.getElementById('status');
+
+        // Gerar Client ID único
+        document.getElementById('clientId').value = 'mqtt_test_' + Math.random().toString(36).substr(2, 9);
+
+        function showStatus(message, type = 'info') {
+            statusDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function connectMQTT() {
+            try {
+                const broker = document.getElementById('broker').value;
+                const port = parseInt(document.getElementById('port').value);
+                const clientId = document.getElementById('clientId').value;
+                const useSSL = document.getElementById('useSSL').checked;
+
+                if (!broker || !port || !clientId) {
+                    showStatus('❌ Preencha todos os campos!', 'error');
+                    return;
+                }
+
+                showStatus('🔄 Conectando...', 'info');
+                addLog(`Tentando conectar em ${broker}:${port} (SSL: ${useSSL})`);
+
+                client = new Paho.MQTT.Client(broker, port, clientId);
+
+                // Callbacks
+                client.onConnectionLost = function (responseObject) {
+                    isConnected = false;
+                    if (responseObject.errorCode !== 0) {
+                        addLog(`❌ Conexão perdida: ${responseObject.errorMessage}`);
+                        showStatus('❌ Conexão perdida', 'error');
+                    }
+                };
+
+                client.onMessageArrived = function (message) {
+                    addLog(`📨 Mensagem recebida em '${message.destinationName}': ${message.payloadString}`);
+                };
+
+                // Conectar
+                client.connect({
+                    useSSL: useSSL,
+                    onSuccess: function () {
+                        isConnected = true;
+                        addLog('✅ Conectado com sucesso!');
+                        showStatus('✅ Conectado ao broker MQTT', 'success');
+
+                        // Inscrever nos tópicos de teste
+                        const topics = [
+                            'smarthome790/sala/luz1',
+                            'smarthome790/quarto/luz1',
+                            'smarthome790/cozinha/tomada1',
+                            'smarthome790/jardim/irrigacao',
+                            'smarthome790/garagem/portao',
+                            'smarthome790/sala/ar'
+                        ];
+
+                        topics.forEach(topic => {
+                            client.subscribe(topic);
+                            addLog(`📥 Inscrito no tópico: ${topic}`);
+                        });
+                    },
+                    onFailure: function (error) {
+                        isConnected = false;
+                        addLog(`❌ Falha na conexão: ${error.errorMessage}`);
+                        showStatus(`❌ Falha na conexão: ${error.errorMessage}`, 'error');
+                    }
+                });
+
+            } catch (error) {
+                addLog(`❌ Erro: ${error.message}`);
+                showStatus(`❌ Erro: ${error.message}`, 'error');
+            }
+        }
+
+        function disconnectMQTT() {
+            if (client && isConnected) {
+                client.disconnect();
+                isConnected = false;
+                addLog('🔌 Desconectado');
+                showStatus('🔌 Desconectado', 'warning');
+            }
+        }
+
+        function publishTest() {
+            if (!client || !isConnected) {
+                showStatus('❌ Não conectado ao MQTT!', 'error');
+                return;
+            }
+
+            const topic = document.getElementById('testTopic').value;
+            const message = document.getElementById('testMessage').value;
+
+            try {
+                const mqttMessage = new Paho.MQTT.Message(message);
+                mqttMessage.destinationName = topic;
+                client.send(mqttMessage);
+
+                addLog(`📤 Enviado para '${topic}': ${message}`);
+                showStatus(`📤 Mensagem enviada para ${topic}`, 'success');
+            } catch (error) {
+                addLog(`❌ Erro ao enviar: ${error.message}`);
+                showStatus(`❌ Erro ao enviar: ${error.message}`, 'error');
+            }
+        }
+
+        function testPublish() {
+            if (!client || !isConnected) {
+                showStatus('❌ Não conectado ao MQTT!', 'error');
+                return;
+            }
+
+            // Teste com dados de sensor
+            const sensorData = {
+                temperature: (20 + Math.random() * 15).toFixed(1),
+                humidity: (40 + Math.random() * 40).toFixed(1)
+            };
+
+            try {
+                const message = new Paho.MQTT.Message(JSON.stringify(sensorData));
+                message.destinationName = 'smarthome790/sensores/dht22';
+                client.send(message);
+
+                addLog(`📤 Dados de sensor enviados: ${JSON.stringify(sensorData)}`);
+                showStatus('📤 Dados de sensor enviados', 'success');
+            } catch (error) {
+                addLog(`❌ Erro ao enviar dados: ${error.message}`);
+                showStatus(`❌ Erro ao enviar dados: ${error.message}`, 'error');
+            }
+        }
+
+        function clearLog() {
+            logElement.textContent = '';
+        }
+
+        // Auto-conectar ao carregar
+        window.addEventListener('load', () => {
+            addLog('🔄 Página carregada - Pronto para testar MQTT');
+            showStatus('⚡ Pronto para conectar', 'info');
+        });
+    </script>
+</body>
+
+</html>

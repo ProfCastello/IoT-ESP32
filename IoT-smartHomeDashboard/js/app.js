@@ -23,7 +23,8 @@ class SmartHomeApp {
         this.initializeComponents()
       );
     } else {
-      this.initializeComponents();
+      // Adiciona um pequeno delay para garantir que todas as bibliotecas estejam carregadas
+      setTimeout(() => this.initializeComponents(), 100);
     }
   }
 
@@ -57,15 +58,6 @@ class SmartHomeApp {
 
       this.isInitialized = true;
       console.log("Smart Home Dashboard inicializado com sucesso!");
-
-      // Mostra toast de inicialização
-      setTimeout(() => {
-        this.uiController.showToast(
-          "Dashboard Iniciado",
-          "Smart Home Dashboard está pronto para uso!",
-          "success"
-        );
-      }, 1000);
     } catch (error) {
       console.error("Erro ao inicializar aplicação:", error);
       this.showErrorMessage(

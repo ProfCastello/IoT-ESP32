@@ -25,7 +25,49 @@ class MQTTClient {
    */
   init() {
     this.generateClientId();
-    this.connect();
+
+    // Aguarda o carregamento da biblioteca Paho MQTT
+    this.waitForPaho()
+      .then(() => {
+        this.connect();
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar biblioteca Paho MQTT:", error);
+        this.updateConnectionStatus(
+          "error",
+          "Erro: Biblioteca MQTT não carregada"
+        );
+
+        // Mostra notificação de erro
+        if (window.notificationSystem) {
+          window.notificationSystem.mqttError(
+            "Biblioteca MQTT não foi carregada corretamente"
+          );
+        }
+      });
+  }
+
+  /**
+   * Aguarda o carregamento da biblioteca Paho MQTT
+   */
+  waitForPaho() {
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 segundos máximo
+
+      const checkPaho = () => {
+        if (typeof Paho !== "undefined" && Paho.MQTT && Paho.MQTT.Client) {
+          resolve();
+        } else if (attempts < maxAttempts) {
+          attempts++;
+          setTimeout(checkPaho, 100);
+        } else {
+          reject(new Error("Timeout: Biblioteca Paho MQTT não foi carregada"));
+        }
+      };
+
+      checkPaho();
+    });
   }
 
   /**
@@ -35,7 +77,7 @@ class MQTTClient {
     const defaultSettings = {
       broker: "broker.hivemq.com",
       port: 8884,
-      secure: false,
+      secure: true,
       clientId: "",
       keepAlive: 60,
       cleanSession: true,
@@ -74,6 +116,18 @@ class MQTTClient {
     try {
       this.updateConnectionStatus("connecting", "Conectando...");
 
+      // Mostra notificação de conexão
+      if (window.notificationSystem) {
+        window.notificationSystem.mqttConnecting();
+      }
+
+      // Verifica se a biblioteca Paho MQTT está carregada
+      if (typeof Paho === "undefined" || !Paho.MQTT || !Paho.MQTT.Client) {
+        throw new Error(
+          "Biblioteca Paho MQTT não está carregada. Verifique se o script está incluído corretamente."
+        );
+      }
+
       // Cria nova instância do cliente
       this.client = new Paho.MQTT.Client(
         this.settings.broker,
@@ -99,6 +153,14 @@ class MQTTClient {
     } catch (error) {
       console.error("Erro ao conectar:", error);
       this.updateConnectionStatus("error", "Erro de conexão");
+
+      // Mostra notificação de erro
+      if (window.notificationSystem) {
+        window.notificationSystem.mqttError(
+          error.message || "Erro desconhecido na conexão"
+        );
+      }
+
       if (this.onError) this.onError(error);
     }
   }
@@ -111,6 +173,11 @@ class MQTTClient {
     this.isConnected = true;
     this.reconnectAttempts = 0;
     this.updateConnectionStatus("connected", "Conectado");
+
+    // Mostra notificação de sucesso
+    if (window.notificationSystem) {
+      window.notificationSystem.mqttConnected();
+    }
 
     // Reinscreve em tópicos anteriores
     this.resubscribeAll();
@@ -128,6 +195,13 @@ class MQTTClient {
     this.isConnected = false;
     this.updateConnectionStatus("error", "Falha na conexão");
 
+    // Mostra notificação de erro
+    if (window.notificationSystem) {
+      window.notificationSystem.mqttError(
+        error.errorMessage || "Falha na conexão com o broker"
+      );
+    }
+
     if (this.onConnectionChange) {
       this.onConnectionChange(false);
     }
@@ -143,6 +217,11 @@ class MQTTClient {
     console.log("Conexão perdida:", responseObject.errorMessage);
     this.isConnected = false;
     this.updateConnectionStatus("disconnected", "Desconectado");
+
+    // Mostra notificação de desconexão
+    if (window.notificationSystem) {
+      window.notificationSystem.mqttDisconnected();
+    }
 
     if (this.onConnectionChange) {
       this.onConnectionChange(false);

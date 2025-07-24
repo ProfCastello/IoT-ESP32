@@ -36,18 +36,18 @@ Por padrão, o sistema está configurado para usar o broker público HiveMQ:
 
 #### Dispositivos (Comando/Status):
 
-- `casa/sala/luz1` - Lâmpada da sala
-- `casa/quarto/luz1` - Lâmpada do quarto
-- `casa/cozinha/tomada1` - Tomada da cozinha
-- `casa/jardim/irrigacao` - Sistema de irrigação
-- `casa/garagem/portao` - Portão da garagem
-- `casa/sala/ar` - Ar condicionado
+- `smarthome790/sala/luz1` - Lâmpada da sala
+- `smarthome790/quarto/luz1` - Lâmpada do quarto
+- `smarthome790/cozinha/tomada1` - Tomada da cozinha
+- `smarthome790/jardim/irrigacao` - Sistema de irrigação
+- `smarthome790/garagem/portao` - Portão da garagem
+- `smarthome790/sala/ar` - Ar condicionado
 
 #### Sensores (Recebimento):
 
-- `casa/sensores/dht22` - Dados do sensor DHT22 (JSON)
-- `casa/sala/temperatura` - Temperatura isolada
-- `casa/sala/umidade` - Umidade isolada
+- `smarthome790/sensores/dht22` - Dados do sensor DHT22 (JSON)
+- `smarthome790/sala/temperatura` - Temperatura isolada
+- `smarthome790/sala/umidade` - Umidade isolada
 
 ### Formato das Mensagens
 
@@ -166,13 +166,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
 
     // Controle dos dispositivos
-    if (String(topic) == "casa/sala/luz1") {
+    if (String(topic) == "smarthome790/sala/luz1") {
         digitalWrite(LED_SALA, message == "on" ? HIGH : LOW);
-        client.publish("casa/sala/luz1", message.c_str());
+        client.publish("smarthome790/sala/luz1", message.c_str());
     }
-    else if (String(topic) == "casa/quarto/luz1") {
+    else if (String(topic) == "smarthome790/quarto/luz1") {
         digitalWrite(LED_QUARTO, message == "on" ? HIGH : LOW);
-        client.publish("casa/quarto/luz1", message.c_str());
+        client.publish("smarthome790/quarto/luz1", message.c_str());
     }
     // ... outros dispositivos
 }
@@ -182,12 +182,12 @@ void reconnect() {
         String clientId = "ESP32Client-" + String(random(0xffff), HEX);
         if (client.connect(clientId.c_str())) {
             // Subscreve aos tópicos
-            client.subscribe("casa/sala/luz1");
-            client.subscribe("casa/quarto/luz1");
-            client.subscribe("casa/cozinha/tomada1");
-            client.subscribe("casa/jardim/irrigacao");
-            client.subscribe("casa/garagem/portao");
-            client.subscribe("casa/sala/ar");
+            client.subscribe("smarthome790/sala/luz1");
+            client.subscribe("smarthome790/quarto/luz1");
+            client.subscribe("smarthome790/cozinha/tomada1");
+            client.subscribe("smarthome790/jardim/irrigacao");
+            client.subscribe("smarthome790/garagem/portao");
+            client.subscribe("smarthome790/sala/ar");
         } else {
             delay(5000);
         }
@@ -208,7 +208,7 @@ void loop() {
 
         if (!isnan(temp) && !isnan(hum)) {
             String sensorData = "{\"temperature\":" + String(temp) + ",\"humidity\":" + String(hum) + "}";
-            client.publish("casa/sensores/dht22", sensorData.c_str());
+            client.publish("smarthome790/sensores/dht22", sensorData.c_str());
         }
 
         lastSensorRead = millis();

@@ -18,8 +18,28 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Paho MQTT -->
-    <script src="https://unpkg.com/paho-mqtt@1.1.0/paho-mqtt.js"></script>
+    <!-- Chart.js Date Adapter -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <!-- Fallback para Paho MQTT caso o primeiro não carregue -->
+    <script>
+        // Verifica se Paho foi carregado, senão carrega de uma CDN alternativa
+        window.addEventListener('load', function () {
+            if (typeof Paho === 'undefined') {
+                console.warn('Paho MQTT não carregado da CDN principal, tentando CDN alternativa...');
+                var script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js';
+                script.onload = function () {
+                    console.log('Paho MQTT carregado da CDN alternativa');
+                };
+                script.onerror = function () {
+                    console.error('Falha ao carregar Paho MQTT de ambas as CDNs');
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
 
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="./css/style.css">
@@ -60,6 +80,11 @@
             </div>
         </div>
     </nav>
+
+    <!-- Sistema de Notificações Centralizado -->
+    <div class="notification-container" id="notificationContainer">
+        <!-- As notificações serão inseridas aqui dinamicamente -->
+    </div>
 
     <!-- Main Container -->
     <div class="container-fluid py-4">
@@ -113,7 +138,7 @@
                                 <p class="card-text text-muted">Iluminação principal</p>
                                 <div class="form-check form-switch d-flex justify-content-center">
                                     <input class="form-check-input device-switch" type="checkbox" id="switch_sala_luz1"
-                                        data-topic="casa/sala/luz1">
+                                        data-topic="smarthome790/sala/luz1">
                                 </div>
                                 <small class="status-text" id="status_sala_luz1">Desligado</small>
                             </div>
@@ -131,7 +156,7 @@
                                 <p class="card-text text-muted">Iluminação do quarto</p>
                                 <div class="form-check form-switch d-flex justify-content-center">
                                     <input class="form-check-input device-switch" type="checkbox"
-                                        id="switch_quarto_luz1" data-topic="casa/quarto/luz1">
+                                        id="switch_quarto_luz1" data-topic="smarthome790/quarto/luz1">
                                 </div>
                                 <small class="status-text" id="status_quarto_luz1">Desligado</small>
                             </div>
@@ -149,7 +174,7 @@
                                 <p class="card-text text-muted">Eletrodomésticos</p>
                                 <div class="form-check form-switch d-flex justify-content-center">
                                     <input class="form-check-input device-switch" type="checkbox"
-                                        id="switch_cozinha_tomada1" data-topic="casa/cozinha/tomada1">
+                                        id="switch_cozinha_tomada1" data-topic="smarthome790/cozinha/tomada1">
                                 </div>
                                 <small class="status-text" id="status_cozinha_tomada1">Desligado</small>
                             </div>
@@ -167,7 +192,7 @@
                                 <p class="card-text text-muted">Sistema automático</p>
                                 <div class="form-check form-switch d-flex justify-content-center">
                                     <input class="form-check-input device-switch" type="checkbox"
-                                        id="switch_jardim_irrigacao" data-topic="casa/jardim/irrigacao">
+                                        id="switch_jardim_irrigacao" data-topic="smarthome790/jardim/irrigacao">
                                 </div>
                                 <small class="status-text" id="status_jardim_irrigacao">Desligado</small>
                             </div>
@@ -184,7 +209,7 @@
                                 <h6 class="card-title">Portão da Garagem</h6>
                                 <p class="card-text text-muted">Acesso veicular</p>
                                 <button class="btn btn-outline-primary btn-sm device-button"
-                                    data-topic="casa/garagem/portao" data-message="toggle">
+                                    data-topic="smarthome790/garagem/portao" data-message="toggle">
                                     <i class="fas fa-power-off me-1"></i>
                                     Acionar
                                 </button>
@@ -204,7 +229,7 @@
                                 <p class="card-text text-muted">Climatização</p>
                                 <div class="form-check form-switch d-flex justify-content-center">
                                     <input class="form-check-input device-switch" type="checkbox" id="switch_sala_ar"
-                                        data-topic="casa/sala/ar">
+                                        data-topic="smarthome790/sala/ar">
                                 </div>
                                 <small class="status-text" id="status_sala_ar">Desligado</small>
                             </div>
@@ -234,14 +259,14 @@
                         </div>
                         <div class="mb-3">
                             <label for="mqttPort" class="form-label">Porta WebSocket</label>
-                            <input type="number" class="form-control" id="mqttPort" value="8000">
+                            <input type="number" class="form-control" id="mqttPort" value="8884">
                         </div>
                         <div class="mb-3">
                             <label for="mqttClientId" class="form-label">Client ID</label>
                             <input type="text" class="form-control" id="mqttClientId" readonly>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="mqttSecure">
+                            <input class="form-check-input" type="checkbox" id="mqttSecure" checked>
                             <label class="form-check-label" for="mqttSecure">
                                 Conexão Segura (WSS)
                             </label>
@@ -338,10 +363,13 @@
         </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"
+        integrity="sha512-nlrGqnXyDyswl/oRH13cQUfr7ZsQs0XxVAZP0Ygs1hzJcq0PiBgTzqnI3YSEFosXOPznrul6lDYcwVvc7gX0UA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <!-- Custom JavaScript -->
+    <script src="./js/notification-system.js"></script>
     <script src="./js/mqtt-client.js"></script>
     <script src="./js/ui-controller.js"></script>
     <script src="./js/chart-controller.js"></script>
