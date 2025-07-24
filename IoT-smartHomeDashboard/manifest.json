@@ -1,0 +1,54 @@
+{
+  "name": "Smart Home Dashboard",
+  "short_name": "SmartHome",
+  "description": "Dashboard IoT moderno para controle de dispositivos ESP32 via MQTT",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "utilities"],
+  "lang": "pt-BR",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM0ZjQ2ZTUiLz4KPHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiB4PSIzMiIgeT0iMzIiPgo8cGF0aCBkPSJNMTAgMjBWMTRIMTRWMjBIMTlWMTJIMjJMMTIgM0wyIDEySFYyMEgxMFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4=",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9IiM0ZjQ2ZTUiLz4KPHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiB4PSI5NiIgeT0iOTYiPgo8cGF0aCBkPSJNMTAgMjBWMTRIMTRWMjBIMTlWMTJIMjJMMTIgM0wyIDEySFYyMEgxMFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4=",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI3MjAiIHZpZXdCb3g9IjAgMCAxMjgwIDcyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMGYxNzJhIi8+Cjx0ZXh0IHg9IjY0MCIgeT0iMzYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSI0OCIgZm9udC1mYW1pbHk9IkFyaWFsIj5TbWFydCBIb21lIERhc2hib2FyZDwvdGV4dD4KPC9zdmc+",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Dashboard principal do Smart Home"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Configurações MQTT",
+      "short_name": "Config",
+      "description": "Abrir configurações do broker MQTT",
+      "url": "/?action=settings",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE5LjE0IDEyLjk0QzE5LjE4IDEyLjY0IDE5LjIgMTIuMzMgMTkuMiAxMkMxOS4yIDExLjY3IDE5LjE4IDExLjM2IDE5LjE0IDExLjA2TDIxLjI1IDkuMzdDMjEuNDMgOS4yMiAyMS40OCA4Ljk1IDIxLjM1IDguNzNMMTkuNDIgNS4yN0MxOS4yOSA1LjA1IDE5LjAyIDQuOTcgMTguOCA1LjA1TDE2LjU2IDUuOTRDMTYuMDQgNS41NyAxNS40OCA1LjI1IDE0Ljg3IDVMMTQuNSAyLjQyQzE0LjQ2IDIuMTggMTQuMjUgMiAxNCAySDEwQzkuNzUgMiA5LjU0IDIuMTggOS41IDIuNDJMOS4xMyA1QzguNTIgNS4yNSA3Ljk2IDUuNTcgNy40NCA1Ljk0TDUuMiA1LjA1QzQuOTggNC45NyA0LjcxIDUuMDUgNC41OCA1LjI3TDIuNjUgOC43M0MyLjUyIDguOTUgMi41NyA5LjIyIDIuNzUgOS4zN0w0Ljg2IDExLjA2QzQuODIgMTEuMzYgNC44IDExLjY3IDQuOCAxMkM0LjggMTIuMzMgNC44MiAxMi42NCA0Ljg2IDEyLjk0TDIuNzUgMTQuNjNDMi41NyAxNC43OCAyLjUyIDE1LjA1IDIuNjUgMTUuMjdMNC41OCAxOC43M0M0LjcxIDE4Ljk1IDQuOTggMTkuMDMgNS4yIDE4Ljk1TDcuNDQgMTguMDZDNy45NiAxOC40MyA4LjUyIDE4Ljc1IDkuMTMgMTlMOS41IDIxLjU4QzkuNTQgMjEuODIgOS43NSAyMiAxMCAyMkgxNEMxNC4yNSAyMiAxNC40NiAyMS44MiAxNC41IDIxLjU4TDE0Ljg3IDE5QzE1LjQ4IDE4Ljc1IDE2LjA0IDE4LjQzIDE2LjU2IDE4LjA2TDE4LjggMTguOTVDMTkuMDIgMTkuMDMgMTkuMjkgMTguOTUgMTkuNDIgMTguNzNMMjEuMzUgMTUuMjdDMjEuNDggMTUuMDUgMjEuNDMgMTQuNzggMjEuMjUgMTQuNjNMMTkuMTQgMTIuOTRaTTEyIDE1LjVDMTAuMDcgMTUuNSA4LjUgMTMuOTMgOC41IDEyUzEwLjA3IDguNSAxMiA4LjVTMTUuNSAxMC4wNyAxNS41IDEyUzEzLjkzIDE1LjUgMTIgMTUuNVoiIGZpbGw9IiM0ZjQ2ZTUiLz4KPC9zdmc+",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "features": ["cross-platform", "offline-capable"]
+}

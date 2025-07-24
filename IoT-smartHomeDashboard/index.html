@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Dashboard - IoT ESP32</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Paho MQTT -->
+    <script src="https://unpkg.com/paho-mqtt@1.1.0/paho-mqtt.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-home me-2"></i>
+                Smart Home Dashboard
+            </a>
+
+            <div class="d-flex align-items-center">
+                <!-- Connection Status -->
+                <span class="badge bg-danger me-3" id="connectionStatus">
+                    <i class="fas fa-wifi me-1"></i>
+                    Desconectado
+                </span>
+
+                <!-- Theme Toggle -->
+                <button class="btn btn-outline-light btn-sm me-2" id="themeToggle">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+
+                <!-- Settings -->
+                <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid py-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Monitoramento
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Temperature & Humidity Chart -->
+                        <canvas id="sensorChart" width="400" height="300"></canvas>
+
+                        <!-- Current Values -->
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <i class="fas fa-thermometer-half text-danger fs-3"></i>
+                                    <div class="fw-bold" id="currentTemp">--°C</div>
+                                    <small class="text-muted">Temperatura</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <i class="fas fa-tint text-info fs-3"></i>
+                                    <div class="fw-bold" id="currentHumidity">--%</div>
+                                    <small class="text-muted">Umidade</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8">
+                <!-- Devices Grid -->
+                <div class="row" id="devicesGrid">
+                    <!-- Sala - Lâmpada Principal -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card device-card" data-device="sala_luz1">
+                            <div class="card-body text-center">
+                                <div class="device-icon mb-3">
+                                    <i class="fas fa-lightbulb device-bulb" id="icon_sala_luz1"></i>
+                                </div>
+                                <h6 class="card-title">Lâmpada da Sala</h6>
+                                <p class="card-text text-muted">Iluminação principal</p>
+                                <div class="form-check form-switch d-flex justify-content-center">
+                                    <input class="form-check-input device-switch" type="checkbox" id="switch_sala_luz1"
+                                        data-topic="casa/sala/luz1">
+                                </div>
+                                <small class="status-text" id="status_sala_luz1">Desligado</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quarto - Lâmpada -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card device-card" data-device="quarto_luz1">
+                            <div class="card-body text-center">
+                                <div class="device-icon mb-3">
+                                    <i class="fas fa-lightbulb device-bulb" id="icon_quarto_luz1"></i>
+                                </div>
+                                <h6 class="card-title">Lâmpada do Quarto</h6>
+                                <p class="card-text text-muted">Iluminação do quarto</p>
+                                <div class="form-check form-switch d-flex justify-content-center">
+                                    <input class="form-check-input device-switch" type="checkbox"
+                                        id="switch_quarto_luz1" data-topic="casa/quarto/luz1">
+                                </div>
+                                <small class="status-text" id="status_quarto_luz1">Desligado</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cozinha - Tomada -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card device-card" data-device="cozinha_tomada1">
+                            <div class="card-body text-center">
+                                <div class="device-icon mb-3">
+                                    <i class="fas fa-plug device-outlet" id="icon_cozinha_tomada1"></i>
+                                </div>
+                                <h6 class="card-title">Tomada da Cozinha</h6>
+                                <p class="card-text text-muted">Eletrodomésticos</p>
+                                <div class="form-check form-switch d-flex justify-content-center">
+                                    <input class="form-check-input device-switch" type="checkbox"
+                                        id="switch_cozinha_tomada1" data-topic="casa/cozinha/tomada1">
+                                </div>
+                                <small class="status-text" id="status_cozinha_tomada1">Desligado</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jardim - Sistema de Irrigação -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card device-card" data-device="jardim_irrigacao">
+                            <div class="card-body text-center">
+                                <div class="device-icon mb-3">
+                                    <i class="fas fa-seedling device-plant" id="icon_jardim_irrigacao"></i>
+                                </div>
+                                <h6 class="card-title">Irrigação do Jardim</h6>
+                                <p class="card-text text-muted">Sistema automático</p>
+                                <div class="form-check form-switch d-flex justify-content-center">
+                                    <input class="form-check-input device-switch" type="checkbox"
+                                        id="switch_jardim_irrigacao" data-topic="casa/jardim/irrigacao">
+                                </div>
+                                <small class="status-text" id="status_jardim_irrigacao">Desligado</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Garagem - Portão -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card device-card" data-device="garagem_portao">
+                            <div class="card-body text-center">
+                                <div class="device-icon mb-3">
+                                    <i class="fas fa-door-open device-door" id="icon_garagem_portao"></i>
+                                </div>
+                                <h6 class="card-title">Portão da Garagem</h6>
+                                <p class="card-text text-muted">Acesso veicular</p>
+                                <button class="btn btn-outline-primary btn-sm device-button"
+                                    data-topic="casa/garagem/portao" data-message="toggle">
+                                    <i class="fas fa-power-off me-1"></i>
+                                    Acionar
+                                </button>
+                                <small class="status-text d-block mt-2" id="status_garagem_portao">Fechado</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ar Condicionado -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card device-card" data-device="sala_ar">
+                            <div class="card-body text-center">
+                                <div class="device-icon mb-3">
+                                    <i class="fas fa-snowflake device-ac" id="icon_sala_ar"></i>
+                                </div>
+                                <h6 class="card-title">Ar Condicionado</h6>
+                                <p class="card-text text-muted">Climatização</p>
+                                <div class="form-check form-switch d-flex justify-content-center">
+                                    <input class="form-check-input device-switch" type="checkbox" id="switch_sala_ar"
+                                        data-topic="casa/sala/ar">
+                                </div>
+                                <small class="status-text" id="status_sala_ar">Desligado</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-cog me-2"></i>
+                        Configurações MQTT
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="mqttSettingsForm">
+                        <div class="mb-3">
+                            <label for="mqttBroker" class="form-label">Broker MQTT</label>
+                            <input type="text" class="form-control" id="mqttBroker" value="broker.hivemq.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="mqttPort" class="form-label">Porta WebSocket</label>
+                            <input type="number" class="form-control" id="mqttPort" value="8000">
+                        </div>
+                        <div class="mb-3">
+                            <label for="mqttClientId" class="form-label">Client ID</label>
+                            <input type="text" class="form-control" id="mqttClientId" readonly>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="mqttSecure">
+                            <label class="form-check-label" for="mqttSecure">
+                                Conexão Segura (WSS)
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveSettings">Salvar e Reconectar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-5">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-home me-2 text-primary fs-4"></i>
+                        <h5 class="mb-0">Smart Home Dashboard</h5>
+                    </div>
+                    <p class="text-muted mb-2">
+                        Interface moderna para controle de dispositivos IoT via MQTT com ESP32.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <small class="text-muted">
+                            <i class="fas fa-microchip me-1"></i>
+                            ESP32 Compatible
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-wifi me-1"></i>
+                            MQTT WebSocket
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-mobile-alt me-1"></i>
+                            Responsive Design
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 ">
+                    <h6 class="mb-3">Informações do Sistema</h6>
+                    <div class="system-info row">
+                        <div class="col-md-6 d-flex justify-content-between mb-2">
+                            <small class="text-muted">Status MQTT:</small>
+                            <small id="footerMqttStatus" class="badge bg-secondary">Desconectado</small>
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-between mb-2">
+                            <small class="text-muted">Dispositivos:</small>
+                            <small id="footerDeviceCount" class="text-info">6 configurados</small>
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-between mb-2">
+                            <small class="text-muted">Última atualização:</small>
+                            <small id="footerLastUpdate" class="text-warning">--:--</small>
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-between">
+                            <small class="text-muted">Uptime:</small>
+                            <small id="footerUptime" class="text-primary">00:00:00</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <small class="text-muted">
+                            © 2025 Smart Home Dashboard |
+                            Desenvolvido para projetos IoT educacionais
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex justify-content-md-end gap-3">
+                        <small class="text-muted">
+                            <i class="fab fa-github me-1"></i>
+                            <a href="#" class="text-decoration-none text-muted footer-link">GitHub</a>
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-book me-1"></i>
+                            <a href="#" class="text-decoration-none text-muted footer-link">Documentação</a>
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-question-circle me-1"></i>
+                            <a href="#" class="text-decoration-none text-muted footer-link">Suporte</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="./js/mqtt-client.js"></script>
+    <script src="./js/ui-controller.js"></script>
+    <script src="./js/chart-controller.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+
+</html>
