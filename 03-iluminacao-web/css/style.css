@@ -1,0 +1,42 @@
+body {
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  text-align: center;
+  background-color: rgb(191, 189, 189);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+h1 {
+  margin-top: 10px;
+  font-size: 60px;
+}
+
+h2 {
+  margin-top: 10px;
+  font-size: 50px;
+}
+
+.comodo {
+  border: 5px solid rgb(249, 244, 244);
+  width: 200px;
+  border-radius: 15px;
+  background-color: aliceblue;
+  margin-top: 15px;
+}
+
+.lampada {
+  font-size: 100px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.ligada {
+  text-shadow: 0 0 20px rgb(8, 215, 8);
+}
