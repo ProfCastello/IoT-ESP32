@@ -291,7 +291,6 @@ async function getCurrentTemperature() {
     throw new Error("Dados inválidos do sensor");
   } catch (error) {
     console.log("Erro ao conectar com sensor IoT:", error.message);
-    simulateIoTTemperature();
     updateConnectionStatus(false);
   }
 }
@@ -338,10 +337,51 @@ function updateIoTDisplay(temperature, humidity = null, battery = null) {
   }
 }
 
+// Função para atualizar a cor do card de temperatura
+function updateTemperatureCardColor(temperature) {
+  const temperatureCard = document.querySelector(".temperature-card");
+
+  if (!temperatureCard) return;
+
+  // Remover classes existentes
+  temperatureCard.classList.remove(
+    "temp-freezing",
+    "temp-cold",
+    "temp-cool",
+    "temp-comfortable",
+    "temp-warm",
+    "temp-hot",
+    "temp-very-hot",
+    "temp-extreme"
+  );
+
+  // Adicionar classe baseada na temperatura
+  if (temperature < 0) {
+    temperatureCard.classList.add("temp-freezing");
+  } else if (temperature < 10) {
+    temperatureCard.classList.add("temp-cold");
+  } else if (temperature < 18) {
+    temperatureCard.classList.add("temp-cool");
+  } else if (temperature < 22) {
+    temperatureCard.classList.add("temp-comfortable");
+  } else if (temperature < 26) {
+    temperatureCard.classList.add("temp-warm");
+  } else if (temperature < 30) {
+    temperatureCard.classList.add("temp-hot");
+  } else if (temperature < 35) {
+    temperatureCard.classList.add("temp-very-hot");
+  } else {
+    temperatureCard.classList.add("temp-extreme");
+  }
+}
+
 // Função separada para atualizar o badge de temperatura
 function updateTemperatureBadge(temperature) {
   const statusBadge = document.querySelector(".status-badge");
 
+  if (!statusBadge) return;
+
+  // Atualizar conteúdo e classe do badge
   if (temperature < 10) {
     statusBadge.className = "badge bg-info status-badge mt-2";
     statusBadge.innerHTML =
@@ -367,21 +407,6 @@ function updateTemperatureBadge(temperature) {
     statusBadge.innerHTML =
       '<i class="bi bi-exclamation-triangle me-1"></i>Muito Quente';
   }
-}
-
-// Simular dados do sensor IoT (fallback) - VERSÃO MELHORADA
-function simulateIoTTemperature() {
-  // Gerar valores mais realistas
-  const temp = 18 + Math.random() * 12; // Entre 18°C e 30°C
-  const humidity = 45 + Math.random() * 35; // Entre 45% e 80%
-  const battery = Math.floor(75 + Math.random() * 26); // Entre 75% e 100%
-
-  updateIoTDisplay(temp, humidity, battery);
-  document.getElementById("lastUpdate").textContent = "Simulado - Agora mesmo";
-
-  console.log(
-    `🎲 Simulação: ${temp.toFixed(1)}°C, ${humidity.toFixed(1)}%, ${battery}%`
-  );
 }
 
 // Atualizar display com dados meteorológicos
@@ -589,6 +614,21 @@ function updateLocationDisplay(location, accuracyType, isRealLocation) {
     } else {
       weatherSourceElement.innerHTML = `Dados simulados para demonstração`;
     }
+  }
+}
+
+// Função para atualizar o status de conexão
+function updateConnectionStatus(isConnected) {
+  const connectionStatusElement = document.getElementById("connectionStatus");
+
+  if (!connectionStatusElement) return;
+
+  if (isConnected) {
+    connectionStatusElement.textContent = "Conectado";
+    connectionStatusElement.className = "connection-online";
+  } else {
+    connectionStatusElement.textContent = "Desconectado";
+    connectionStatusElement.className = "connection-offline";
   }
 }
 
@@ -803,12 +843,12 @@ document.addEventListener("DOMContentLoaded", initializeApp);
 // Configurações MQTT
 const MQTT_HOST = "broker.hivemq.com";
 const MQTT_PORT = 8884;
-const MQTT_TOPIC_TEMPERATURA = "proeducador7903/temperatura";
+const MQTT_TOPIC_TEMPERATURA = "proeducador790/temperatura";
 let clientWeb = null;
 let isConnected = false;
 let reconnectTimeout = null;
 
-// Inicializar cliente MQTT
+// Refatorar inicialização do cliente MQTT
 function initMQTT() {
   const clientId = "Esp32" + Math.floor(Math.random() * 900) + 100;
   clientWeb = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, clientId);
@@ -820,7 +860,7 @@ function initMQTT() {
   connectMQTT();
 }
 
-// Conectar ao broker MQTT
+// Refatorar conexão ao broker MQTT
 function connectMQTT() {
   clientWeb.connect({
     useSSL: true,
@@ -833,7 +873,6 @@ function connectMQTT() {
 // Sucesso na conexão
 function handleConnectSuccess() {
   console.log("Conectado ao broker MQTT");
-  alert("Conectado ao broker MQTT");
   isConnected = true;
 
   // Limpar timeout de reconexão
@@ -849,7 +888,6 @@ function handleConnectSuccess() {
 // Falha na conexão
 function handleConnectFailure(error) {
   console.error("Falha na conexão: " + error.errorMessage);
-  alert("Falha na conexão: " + error.errorMessage);
   isConnected = false;
 
   scheduleReconnect();
@@ -871,7 +909,6 @@ function scheduleReconnect() {
 function handleConnectionLost(responseObject) {
   if (responseObject.errorCode !== 0) {
     console.error("Conexão perdida: " + responseObject.errorMessage);
-    alert("Conexão perdida. Tentando reconectar...");
     isConnected = false;
 
     scheduleReconnect();
@@ -885,10 +922,31 @@ function handleMessageArrived(message) {
 
   try {
     const data = JSON.parse(payload);
-    document.getElementById(
-      "currentTemp"
-    ).textContent = `${data.temperatura}°C`;
-    document.getElementById("currentHumidity").textContent = `${data.umidade}%`;
+    console.log("Dados recebidos:", data);
+    // Atualizar temperatura
+    if (validateTemperature(data.temperatura)) {
+      document.getElementById(
+        "iotTemperature"
+      ).textContent = `${data.temperatura}°C`;
+      updateTemperatureCardColor(data.temperatura);
+      updateTemperatureBadge(data.temperatura);
+    }
+
+    // Atualizar umidade
+    if (validateHumidity(data.umidade)) {
+      document.getElementById(
+        "iotHumidity"
+      ).innerHTML = `<i class="bi bi-droplet me-1"></i>${data.umidade}%`;
+    }
+
+    // Atualizar bateria, se disponível
+    if (validateBattery(data.bateria)) {
+      document.querySelector("[data-battery]").textContent = `${data.bateria}%`;
+    }
+
+    // Atualizar status
+    document.getElementById("lastUpdate").textContent =
+      "Atualizado via MQTT - Agora mesmo";
   } catch (error) {
     console.error("Erro ao processar mensagem MQTT: ", error);
   }
