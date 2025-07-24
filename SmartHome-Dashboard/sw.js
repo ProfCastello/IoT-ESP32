@@ -3,7 +3,7 @@
  * Permite funcionamento offline e cache de recursos
  */
 
-const CACHE_NAME = "smart-home-dashboard-v1.0.0";
+const CACHE_NAME = "smart-home-dashboard-v1.2.0";
 const STATIC_CACHE_URLS = [
   "./",
   "./index.html",
