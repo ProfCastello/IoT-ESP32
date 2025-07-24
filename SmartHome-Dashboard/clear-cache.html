@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpar Cache - Smart Home Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        button:hover {
+            background: #c82333;
+        }
+
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧹 Limpar Cache do Smart Home Dashboard</h1>
+
+        <div class="info">
+            <strong>Problema:</strong> O Service Worker está cacheando a versão antiga do HTML.<br>
+            <strong>Solução:</strong> Limpar todos os caches e registrar novamente o Service Worker.
+        </div>
+
+        <button onclick="clearAllCaches()">🗑️ Limpar Todo o Cache</button>
+        <button onclick="unregisterServiceWorkers()">❌ Desregistrar Service Workers</button>
+        <button onclick="reloadWithoutCache()">🔄 Recarregar sem Cache</button>
+
+        <div id="result"></div>
+
+        <hr style="margin: 30px 0;">
+
+        <h3>Passos Manuais (se necessário):</h3>
+        <ol>
+            <li>Abra o Developer Tools (F12)</li>
+            <li>Vá para Application > Storage</li>
+            <li>Clique em "Clear site data"</li>
+            <li>Ou use Ctrl+Shift+R para hard refresh</li>
+        </ol>
+
+        <p><a href="index.html">← Voltar para o Dashboard</a></p>
+    </div>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+
+        function showResult(message, type = 'info') {
+            resultDiv.innerHTML = `<div class="${type}" style="margin: 15px 0; padding: 10px; border-radius: 5px;">${message}</div>`;
+        }
+
+        async function clearAllCaches() {
+            try {
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    const deletePromises = cacheNames.map(cacheName => caches.delete(cacheName));
+                    await Promise.all(deletePromises);
+                    showResult(`✅ ${cacheNames.length} cache(s) limpo(s) com sucesso!`, 'success');
+                } else {
+                    showResult('❌ API de Cache não suportada neste navegador.', 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Erro ao limpar cache: ${error.message}`, 'error');
+            }
+        }
+
+        async function unregisterServiceWorkers() {
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    const unregisterPromises = registrations.map(registration => registration.unregister());
+                    await Promise.all(unregisterPromises);
+                    showResult(`✅ ${registrations.length} Service Worker(s) desregistrado(s)!`, 'success');
+                } else {
+                    showResult('❌ Service Workers não suportados neste navegador.', 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Erro ao desregistrar Service Workers: ${error.message}`, 'error');
+            }
+        }
+
+        function reloadWithoutCache() {
+            showResult('🔄 Recarregando página sem cache...', 'info');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+                window.location.reload(true);
+            }, 1000);
+        }
+
+        // Verifica o status atual
+        window.addEventListener('load', async () => {
+            try {
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    console.log('Caches encontrados:', cacheNames);
+                }
+
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    console.log('Service Workers ativos:', registrations.length);
+                }
+            } catch (error) {
+                console.log('Erro ao verificar status:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>
