@@ -437,12 +437,12 @@ class UIController {
    */
   extractDeviceIdFromTopic(topic) {
     const topicMap = {
-      "casa/sala/luz1": "sala_luz1",
-      "casa/quarto/luz1": "quarto_luz1",
-      "casa/cozinha/tomada1": "cozinha_tomada1",
-      "casa/jardim/irrigacao": "jardim_irrigacao",
-      "casa/garagem/portao": "garagem_portao",
-      "casa/sala/ar": "sala_ar",
+      "smarthome790/sala/luz1": "sala_luz1",
+      "smarthome790/quarto/luz1": "quarto_luz1",
+      "smarthome790/cozinha/tomada1": "cozinha_tomada1",
+      "smarthome790/jardim/irrigacao": "jardim_irrigacao",
+      "smarthome790/garagem/portao": "garagem_portao",
+      "smarthome790/sala/ar": "sala_ar",
     };
 
     return topicMap[topic] || null;

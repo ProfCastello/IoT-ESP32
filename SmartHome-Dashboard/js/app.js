@@ -190,9 +190,9 @@ class SmartHomeApp {
    */
   isSensorTopic(topic) {
     const sensorTopics = [
-      "casa/sensores/dht22",
-      "casa/sala/temperatura",
-      "casa/sala/umidade",
+      "smarthome790/sensores/dht22",
+      "smarthome790/sala/temperatura",
+      "smarthome790/sala/umidade",
     ];
     return sensorTopics.includes(topic);
   }
@@ -202,12 +202,12 @@ class SmartHomeApp {
    */
   isDeviceTopic(topic) {
     const deviceTopics = [
-      "casa/sala/luz1",
-      "casa/quarto/luz1",
-      "casa/cozinha/tomada1",
-      "casa/jardim/irrigacao",
-      "casa/garagem/portao",
-      "casa/sala/ar",
+      "smarthome790/sala/luz1",
+      "smarthome790/quarto/luz1",
+      "smarthome790/cozinha/tomada1",
+      "smarthome790/jardim/irrigacao",
+      "smarthome790/garagem/portao",
+      "smarthome790/sala/ar",
     ];
     return deviceTopics.includes(topic);
   }
@@ -331,13 +331,13 @@ class SmartHomeApp {
     const sensorData = JSON.stringify({ temperature, humidity });
 
     // Simula publicação do ESP32
-    this.handleMQTTMessage("casa/sensores/dht22", sensorData);
+    this.handleMQTTMessage("smarthome790/sensores/dht22", sensorData);
 
     // Simula mudança aleatória de estado de dispositivo
     const devices = [
-      "casa/sala/luz1",
-      "casa/quarto/luz1",
-      "casa/cozinha/tomada1",
+      "smarthome790/sala/luz1",
+      "smarthome790/quarto/luz1",
+      "smarthome790/cozinha/tomada1",
     ];
     const randomDevice = devices[Math.floor(Math.random() * devices.length)];
     const randomState =

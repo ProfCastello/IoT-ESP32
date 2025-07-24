@@ -34,7 +34,7 @@ class MQTTClient {
   loadSettings() {
     const defaultSettings = {
       broker: "broker.hivemq.com",
-      port: 8000,
+      port: 8884,
       secure: false,
       clientId: "",
       keepAlive: 60,
