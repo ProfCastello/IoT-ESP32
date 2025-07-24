@@ -441,21 +441,6 @@ body {
   color: #0dcaf0 !important;
 }
 
-/* ========================================
-   MELHORIAS DE RESPONSIVIDADE MOBILE
-   ======================================== */
-
-/* Umidade no card IoT */
-#iotHumidity {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  transition: opacity 0.3s ease;
-}
-
-#iotHumidity:hover {
-  opacity: 1;
-}
-
 /* Melhorias para tablets */
 @media (max-width: 992px) {
   .temperature-value {

@@ -224,76 +224,76 @@ function handleWeatherApiError() {
 }
 
 // Obter dados do sensor IoT - VERSÃO MELHORADA
-async function getCurrentTemperature() {
-  try {
-    // Primeiro tenta obter dados da API do ESP32
-    let response = await fetch(IOT_SENSOR_API_URL, {
-      method: "GET",
-      timeout: 5000, // 5 segundos de timeout
-    });
+// async function getCurrentTemperature() {
+//   try {
+//     // Primeiro tenta obter dados da API do ESP32
+//     let response = await fetch(IOT_SENSOR_API_URL, {
+//       method: "GET",
+//       timeout: 5000, // 5 segundos de timeout
+//     });
 
-    if (!response.ok) {
-      // Se falhar, tenta o JSON local para desenvolvimento
-      console.log(
-        "API do ESP32 não disponível, usando dados locais para desenvolvimento"
-      );
-      response = await fetch(IOT_LOCAL_JSON);
-    }
+//     if (!response.ok) {
+//       // Se falhar, tenta o JSON local para desenvolvimento
+//       console.log(
+//         "API do ESP32 não disponível, usando dados locais para desenvolvimento"
+//       );
+//       response = await fetch(IOT_LOCAL_JSON);
+//     }
 
-    if (response.ok) {
-      const data = await response.json();
+//     if (response.ok) {
+//       const data = await response.json();
 
-      // Se for da API do ESP32 (formato simples)
-      if (data.temperature !== undefined) {
-        const temp = parseFloat(data.temperature);
-        const humidity = data.humidity ? parseFloat(data.humidity) : null;
-        const battery = data.battery ? parseFloat(data.battery) : null;
+//       // Se for da API do ESP32 (formato simples)
+//       if (data.temperature !== undefined) {
+//         const temp = parseFloat(data.temperature);
+//         const humidity = data.humidity ? parseFloat(data.humidity) : null;
+//         const battery = data.battery ? parseFloat(data.battery) : null;
 
-        if (validateTemperature(temp)) {
-          const validHumidity =
-            humidity && validateHumidity(humidity) ? humidity : null;
-          const validBattery =
-            battery && validateBattery(battery) ? battery : 85;
+//         if (validateTemperature(temp)) {
+//           const validHumidity =
+//             humidity && validateHumidity(humidity) ? humidity : null;
+//           const validBattery =
+//             battery && validateBattery(battery) ? battery : 85;
 
-          updateIoTDisplay(temp, validHumidity, validBattery);
-          document.getElementById("lastUpdate").textContent = "Agora mesmo";
-          updateConnectionStatus(true);
-          return;
-        }
-      }
+//           updateIoTDisplay(temp, validHumidity, validBattery);
+//           document.getElementById("lastUpdate").textContent = "Agora mesmo";
+//           updateConnectionStatus(true);
+//           return;
+//         }
+//       }
 
-      // Se for do JSON local (formato completo)
-      if (data.current && data.current.temperature !== undefined) {
-        const temp = parseFloat(data.current.temperature);
-        const humidity = data.current.humidity
-          ? parseFloat(data.current.humidity)
-          : null;
-        const battery = data.current.battery
-          ? parseFloat(data.current.battery)
-          : null;
+//       // Se for do JSON local (formato completo)
+//       if (data.current && data.current.temperature !== undefined) {
+//         const temp = parseFloat(data.current.temperature);
+//         const humidity = data.current.humidity
+//           ? parseFloat(data.current.humidity)
+//           : null;
+//         const battery = data.current.battery
+//           ? parseFloat(data.current.battery)
+//           : null;
 
-        if (validateTemperature(temp)) {
-          const validHumidity =
-            humidity && validateHumidity(humidity) ? humidity : null;
-          const validBattery =
-            battery && validateBattery(battery) ? battery : 85;
+//         if (validateTemperature(temp)) {
+//           const validHumidity =
+//             humidity && validateHumidity(humidity) ? humidity : null;
+//           const validBattery =
+//             battery && validateBattery(battery) ? battery : 85;
 
-          updateIoTDisplay(temp, validHumidity, validBattery);
-          document.getElementById("lastUpdate").textContent =
-            "Simulado - " +
-            new Date(data.current.timestamp).toLocaleTimeString("pt-BR");
-          updateConnectionStatus(false);
-          return;
-        }
-      }
-    }
+//           updateIoTDisplay(temp, validHumidity, validBattery);
+//           document.getElementById("lastUpdate").textContent =
+//             "Simulado - " +
+//             new Date(data.current.timestamp).toLocaleTimeString("pt-BR");
+//           updateConnectionStatus(false);
+//           return;
+//         }
+//       }
+//     }
 
-    throw new Error("Dados inválidos do sensor");
-  } catch (error) {
-    console.log("Erro ao conectar com sensor IoT:", error.message);
-    updateConnectionStatus(false);
-  }
-}
+//     throw new Error("Dados inválidos do sensor");
+//   } catch (error) {
+//     console.log("Erro ao conectar com sensor IoT:", error.message);
+//     updateConnectionStatus(false);
+//   }
+// }
 
 // Atualizar display do sensor IoT - VERSÃO MELHORADA
 function updateIoTDisplay(temperature, humidity = null, battery = null) {
@@ -660,7 +660,6 @@ function initializeApp() {
   // Inicializar funcionalidades
   updateTime();
   getLocationAndWeather(); // Dados reais da API wttr.in
-  getCurrentTemperature(); // Sensor IoT (simulado se não conectado)
 
   // Intervalos de atualização com tratamento de erro
   setInterval(() => {
@@ -670,14 +669,6 @@ function initializeApp() {
       console.error("Erro ao atualizar horário:", error);
     }
   }, 1000);
-
-  setInterval(() => {
-    try {
-      getCurrentTemperature();
-    } catch (error) {
-      console.error("Erro ao atualizar sensor IoT:", error);
-    }
-  }, 5000);
 
   setInterval(() => {
     try {
@@ -915,14 +906,30 @@ function handleConnectionLost(responseObject) {
   }
 }
 
+// Adicionar validação para JSON antes de processá-lo
+function isValidJSON(jsonString) {
+  try {
+    JSON.parse(jsonString);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 // Mensagem recebida
 function handleMessageArrived(message) {
   const payload = message.payloadString;
   console.log(`Mensagem recebida: ${payload}`);
 
+  if (!isValidJSON(payload)) {
+    console.error("Erro: JSON malformado recebido via MQTT.");
+    return;
+  }
+
   try {
     const data = JSON.parse(payload);
     console.log("Dados recebidos:", data);
+
     // Atualizar temperatura
     if (validateTemperature(data.temperatura)) {
       document.getElementById(
@@ -945,8 +952,7 @@ function handleMessageArrived(message) {
     }
 
     // Atualizar status
-    document.getElementById("lastUpdate").textContent =
-      "Atualizado via MQTT - Agora mesmo";
+    document.getElementById("lastUpdate").textContent = "Agora mesmo";
   } catch (error) {
     console.error("Erro ao processar mensagem MQTT: ", error);
   }

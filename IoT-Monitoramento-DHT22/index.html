@@ -96,25 +96,39 @@
         <div class="row justify-content-center mb-4">
             <div class="col-lg-6 col-md-8">
                 <div class="card temperature-card temp-comfortable shadow-lg">
-                    <div class="card-body text-center p-5">
-                        <div class="row align-items-center">
-                            <div class="col-4">
-                                <i class="bi bi-cpu sensor-icon"></i>
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-cpu sensor-icon display-3"></i>
+                            <h3 class="card-title text-light mt-3">Sensor IoT</h3>
+                        </div>
+                        <div class="row text-light">
+                            <div class="col-6 text-center">
+                                <h4 class="temperature-value mb-2" id="iotTemperature">00.0°C</h4>
+                                <small>Temperatura</small>
                             </div>
-                            <div class="col-8">
-                                <h3 class="card-title mb-3 text-light">Sensor IoT</h3>
-                                <div class="temperature-value text-light" id="iotTemperature">
-                                    00.0°C
-                                </div>
-                                <!-- Novo elemento para umidade -->
-                                <div class="text-light mt-2" id="iotHumidity">
-                                    <i class="bi bi-droplet me-1"></i>
-                                    <span>00%</span>
-                                </div>
-                                <span class="badge bg-success status-badge mt-2">
-                                    <i class="bi bi-check-circle me-1"></i>
-                                    ESP32 Online
-                                </span>
+                            <div class="col-6 text-center">
+                                <h4 class="temperature-value mb-2" id="iotHumidity">00%</h4>
+                                <small>Umidade</small>
+                            </div>
+                        </div>
+                        <hr class="text-light">
+                        <div class="status-info text-light row">
+                            <div class="col-md-7 d-flex gap-3 justify-content-start align-items-center mb-2">
+                                <i class="bi bi-wifi text-success"></i>
+                                <span><strong>Conexão:</strong> Online</span>
+                            </div>
+                            <div class="col-md-5 d-flex gap-3 justify-content-start align-items-center mb-2">
+                                <i class="bi bi-cpu text-info"></i>
+                                <span><strong>Sensor:</strong> DHT22 Ativo</span>
+                            </div>
+                            <div class="col-md-7 d-flex gap-3 justify-content-start align-items-center mb-2">
+                                <i class="bi bi-arrow-clockwise text-warning"></i>
+                                <span><strong>Última Atualização:</strong> <span
+                                        id="lastUpdate">Carregando...</span></span>
+                            </div>
+                            <div class="col-md-5 d-flex gap-3 justify-content-start align-items-center mb-2">
+                                <i class="bi bi-battery-full text-success"></i>
+                                <span><strong>Bateria:</strong> <span data-battery>85%</span></span>
                             </div>
                         </div>
                     </div>
@@ -216,7 +230,7 @@
         </div>
 
         <!-- Status Information -->
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white">
@@ -267,7 +281,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <!-- Footer -->
