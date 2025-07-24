@@ -102,11 +102,7 @@ class SmartHomeApp {
     ];
 
     // Tópicos de sensores
-    const sensorTopics = [
-      "smarthome790/sensores/dht22",
-      "smarthome790/sala/temperatura",
-      "smarthome790/sala/umidade",
-    ];
+    const sensorTopics = ["smarthome790/sensores/dht22"];
 
     // Aguarda conexão MQTT antes de se inscrever
     const subscribeWhenConnected = () => {
@@ -181,11 +177,7 @@ class SmartHomeApp {
    * Verifica se é um tópico de sensor
    */
   isSensorTopic(topic) {
-    const sensorTopics = [
-      "smarthome790/sensores/dht22",
-      "smarthome790/sala/temperatura",
-      "smarthome790/sala/umidade",
-    ];
+    const sensorTopics = ["smarthome790/sensores/dht22"];
     return sensorTopics.includes(topic);
   }
 

@@ -360,30 +360,6 @@ class ChartController {
   }
 
   /**
-   * Gera dados simulados para demonstração
-   */
-  generateSimulatedData() {
-    const now = new Date();
-
-    // Gera temperatura entre 18-28°C com variação suave
-    const baseTemp = 23;
-    const tempVariation = Math.sin(now.getTime() / 600000) * 3; // Variação de 6°C
-    const tempNoise = (Math.random() - 0.5) * 2; // Ruído de ±1°C
-    const temperature = baseTemp + tempVariation + tempNoise;
-
-    // Gera umidade entre 40-80% com variação suave
-    const baseHum = 60;
-    const humVariation = Math.cos(now.getTime() / 900000) * 15; // Variação de 30%
-    const humNoise = (Math.random() - 0.5) * 5; // Ruído de ±2.5%
-    const humidity = Math.max(
-      20,
-      Math.min(90, baseHum + humVariation + humNoise)
-    );
-
-    this.addDataPoint(temperature.toFixed(1), humidity.toFixed(1));
-  }
-
-  /**
    * Inicia atualização automática (para demonstração)
    */
   startAutoUpdate() {
