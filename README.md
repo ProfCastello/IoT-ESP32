@@ -42,6 +42,9 @@ Este repositório contém diversos projetos educacionais utilizando o ESP32 e te
 ## IoT-semaforoWeb
 
 **Descrição:** Controle de semáforo via interface web.
+
+**Acesse o projeto online:** [IoT-semaforoWeb](https://semaforoweb.onrender.com/)
+
 **Arquivos:**
 
 - `index.html`: Interface web.
