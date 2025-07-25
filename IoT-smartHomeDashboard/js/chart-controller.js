@@ -363,11 +363,6 @@ class ChartController {
    * Inicia atualização automática (para demonstração)
    */
   startAutoUpdate() {
-    // Gera dados iniciais se não houver dados
-    if (this.sensorData.timestamps.length === 0) {
-      this.generateSimulatedData();
-    }
-
     // Atualiza valores atuais
     if (this.sensorData.temperature.length > 0) {
       const lastTemp =
@@ -378,9 +373,7 @@ class ChartController {
     }
 
     // Atualiza a cada 30 segundos (para demonstração)
-    this.updateInterval = setInterval(() => {
-      this.generateSimulatedData();
-    }, 30000);
+    this.updateInterval = setInterval(() => {}, 30000);
   }
 
   /**

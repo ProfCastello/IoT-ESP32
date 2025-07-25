@@ -447,17 +447,6 @@ class UIController {
 
     if (deviceId) {
       this.updateDeviceUI(deviceId, message.toLowerCase());
-
-      // // Mostra notificação se necessário
-      // if (message.toLowerCase() === "on" || message.toLowerCase() === "off") {
-      //   this.showToast(
-      //     "Dispositivo Atualizado",
-      //     `${this.getDeviceName(deviceId)} foi ${
-      //       message.toLowerCase() === "on" ? "ligado" : "desligado"
-      //     }`,
-      //     "info"
-      //   );
-      //}
     }
   }
 
