@@ -32,6 +32,9 @@ Este repositório contém diversos projetos educacionais utilizando o ESP32 e te
 ## IoT-Monitoramento-DHT22
 
 **Descrição:** Monitoramento de temperatura e umidade utilizando o sensor DHT22.
+
+**Acesse o projeto online:** [IoT-Monitoramento-DHT22](https://iotmonitoring.onrender.com/)
+
 **Arquivos:**
 
 - `index.html`: Interface web.
@@ -54,6 +57,9 @@ Este repositório contém diversos projetos educacionais utilizando o ESP32 e te
 ## IoT-smartHomeDashboard
 
 **Descrição:** Dashboard para controle de dispositivos de uma casa inteligente.
+
+**Acesse o projeto online:** [IoT-smartHomeDashboard](https://ismarthome.onrender.com/)
+
 **Arquivos:**
 
 - `index.html`: Página principal.
