@@ -215,7 +215,9 @@ self.addEventListener("push", (event) => {
         // icon: "./icon-192.png",
       },
     ],
+    requireInteraction: true, // Mantém a notificação visível até interação
   };
+
 
   event.waitUntil(
     self.registration.showNotification("Smart Home Dashboard", options)

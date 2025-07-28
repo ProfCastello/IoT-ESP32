@@ -19,6 +19,23 @@
     document.documentElement.classList.add("theme-light-init");
   }
 })();
+// Executar imediatamente quando o script é carregado
+(function () {
+  // Detectar preferência do sistema e tema salvo
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const savedTheme = localStorage.getItem("theme");
+  const theme = savedTheme || (prefersDark ? "dark" : "light");
+
+  // Aplicar tema imediatamente
+  document.documentElement.setAttribute("data-theme", theme);
+
+  // Aplicar classe inicial ao body baseado no tema detectado
+  if (theme === "dark") {
+    document.documentElement.classList.add("theme-dark-init");
+  } else {
+    document.documentElement.classList.add("theme-light-init");
+  }
+})();
 
 // ========================================
 // CONFIGURAÇÕES E CONSTANTES

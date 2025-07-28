@@ -491,7 +491,7 @@ class UIController {
     if (!toastContainer) {
       toastContainer = document.createElement("div");
       toastContainer.className =
-        "toast-container position-fixed top-0 end-0 p-3";
+        "toast-container position-fixed top-0 start-50 translate-middle-x p-3";
       toastContainer.style.zIndex = "9999";
       document.body.appendChild(toastContainer);
     }

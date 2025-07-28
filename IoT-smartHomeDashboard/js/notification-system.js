@@ -6,6 +6,12 @@
 class NotificationSystem {
   constructor() {
     this.container = document.getElementById("notificationContainer");
+    if (!this.container) {
+      this.container = document.createElement("div");
+      this.container.id = "notificationContainer";
+      this.container.className = "notification-container";
+      document.body.appendChild(this.container);
+    }
     this.notifications = new Map();
     this.autoCloseTime = 5000; // 5 segundos
     this.maxNotifications = 4;
