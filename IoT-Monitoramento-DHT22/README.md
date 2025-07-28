@@ -1,37 +1,35 @@
 # Sistema IoT de Monitoramento de Temperatura
 
-## ⚡ Funcionamento Atualizado
+## Visão Geral
 
-### 🌡️ **Card Principal - Sensor IoT (ESP32 + DHT22)**
+Este projeto implementa um sistema de monitoramento de temperatura utilizando um sensor IoT (ESP32 + DHT22). A interface web exibe dados em tempo real, como temperatura, umidade e status da bateria, além de informações climáticas obtidas de uma API externa.
 
-- **Localização**: Card principal no centro da tela
-- **Dados**: Temperatura, umidade e bateria do sensor IoT
-- **Fonte**: API do ESP32 ou JSON local (`iot-sensor-data.json`) para desenvolvimento
-- **Status**: Badge visual mostra "ESP32 Online" ou status baseado na temperatura
-- **Atualização**: A cada 5 segundos
+## Funcionalidades Principais
 
-### 🌍 **Cards de Dados Climáticos (3 Cards - wttr.in API)**
+### 🌡️ Sensor IoT (ESP32 + DHT22)
 
-1. **Temperatura Atual**: Temperatura em tempo real da localização
-2. **Máxima Hoje**: Temperatura máxima do dia
-3. **Mínima Hoje**: Temperatura mínima do dia
+- **Localização**: Card principal no centro da tela.
+- **Dados Exibidos**: Temperatura, umidade e status da bateria.
+- **Fonte de Dados**: API do ESP32 ou JSON local (`iot-sensor-data.json`) para desenvolvimento.
+- **Status**: Indicação visual de "ESP32 Online" ou status baseado na temperatura.
+- **Atualização**: Dados atualizados a cada 5 segundos.
 
-- **Fonte**: API wttr.in (gratuita, sem necessidade de chave de API)
-- **URL**: `https://wttr.in/{lat},{lon}?format=j1`
-- **Vantagens**: Sem limites de requisições, sem cadastro necessário
-- **Atualização**: A cada 5 minutos
-- **Fallback**: Se a API falhar, exibe "N/A" e "Serviço indisponível"
+### 🌍 Dados Climáticos (API wttr.in)
 
-### 🌓 **Sistema de Temas Dark/Light**
+- **Temperatura Atual**: Temperatura em tempo real da localização.
+- **Máxima e Mínima do Dia**: Dados climáticos diários.
+- **Fonte**: API gratuita wttr.in (sem necessidade de chave de API).
+- **Atualização**: A cada 5 minutos.
+- **Fallback**: Exibe "N/A" e "Serviço indisponível" em caso de falha.
 
-- **Toggle no Navbar**: Botão para alternar entre tema claro e escuro
-- **Persistência**: Tema salvo no localStorage do navegador
-- **Transições Suaves**: Animações de 0.3s ao alternar temas
-- **Cores Adaptadas**: Cards e elementos se ajustam automaticamente
-- **Temperatura**: Gradientes de temperatura mantidos em ambos os temas
-- **Acessibilidade**: Ícones intuitivos (sol/lua) para identificação
+### 🌓 Sistema de Temas
 
-## 📁 Estrutura do Projeto
+- **Alternância de Tema**: Botão no Navbar para alternar entre temas claro e escuro.
+- **Persistência**: Tema salvo no localStorage do navegador.
+- **Transições Suaves**: Animações ao alternar temas.
+- **Acessibilidade**: Ícones intuitivos para identificação do tema.
+
+## Estrutura do Projeto
 
 ```
 IoT-Monitoramento-DHT22/
@@ -41,28 +39,6 @@ IoT-Monitoramento-DHT22/
 ├── json/
 │   └── iot-sensor-data.json # Dados simulados para desenvolvimento
 └── README.md               # Documentação do projeto
-```
-
-## 📁 Arquivos para Desenvolvimento
-
-### `iot-sensor-data.json`
-
-JSON local com dados simulados do sensor IoT:
-
-```json
-{
-  "current": {
-    "temperature": 25.7,
-    "humidity": 59.4,
-    "battery": 85,
-    "timestamp": "2025-07-22T10:25:00Z"
-  },
-  "statistics": {
-    "daily_avg": 24.8,
-    "daily_max": 26.2,
-    "daily_min": 22.1
-  }
-}
 ```
 
 ## Configuração
@@ -77,15 +53,13 @@ const IOT_SENSOR_API_URL = "http://192.168.1.100/api/temperature"; // Altere par
 
 ### 2. API de Clima (wttr.in)
 
-✅ **Já configurada e funcionando!**
-
-- **Sem necessidade de chave de API**
-- **Sem limites de requisições**
-- **Sem cadastro necessário**
+- **Já configurada e funcionando!**
+- **Sem necessidade de chave de API.**
+- **Sem limites de requisições.**
 
 ### 3. Formato JSON Esperado do ESP32
 
-O sensor deve retornar dados no formato:
+O sensor deve retornar dados no seguinte formato:
 
 ```json
 {
@@ -112,7 +86,6 @@ DHT dht(DHT_PIN, DHT_TYPE);
 WebServer server(80);
 
 void setup() {
-  // Configuração WiFi e sensor
   dht.begin();
 
   server.on("/api/temperature", HTTP_GET, []() {
@@ -135,31 +108,20 @@ void setup() {
 }
 ```
 
-## 📁 Estrutura Final do Projeto
+## Como Usar
 
-```
-IoT-Monitoramento-DHT22/
-├── index.html              # Interface principal
-├── css/style.css           # Estilos visuais com cores dinâmicas
-├── js/script.js            # Lógica da aplicação
-├── json/
-│   └── iot-sensor-data.json # Dados simulados para desenvolvimento
-└── README.md               # Documentação do projeto
-```
+1. Configure o IP do ESP32 na constante `IOT_SENSOR_API_URL` do arquivo `script.js`.
+2. Abra o arquivo `index.html` em um navegador.
+3. Permita acesso à localização quando solicitado.
+4. O sistema exibirá dados em tempo real ou simulados (se offline).
 
-- ✅ **API meteorológica gratuita** com wttr.in (sem chave necessária)
-- ✅ **Geolocalização automática** para dados climáticos precisos
-- ✅ **Temperatura atual, máxima e mínima** baseadas na localização
-- ✅ **Cores dinâmicas** no card principal baseadas na temperatura do sensor
-- ✅ **Sistema de temas** Dark/Light com persistência no navegador
-- ✅ **Fallback inteligente** quando offline
-- ✅ **Interface responsiva** com Bootstrap
-- ✅ **Status de conexão** em tempo real
-- ✅ **Atualização automática** a cada 5 segundos
+## Recursos Adicionais
 
-## Como usar
-
-1. Configure o IP do ESP32 na constante `IOT_SENSOR_API_URL` do arquivo `script.js`
-2. Abra o `index.html` em um navegador
-3. Permita acesso à localização quando solicitado
-4. O sistema mostrará dados em tempo real ou simulados se offline
+- **API meteorológica gratuita** com wttr.in (sem chave necessária).
+- **Geolocalização automática** para dados climáticos precisos.
+- **Cores dinâmicas** no card principal baseadas na temperatura do sensor.
+- **Sistema de temas** Dark/Light com persistência no navegador.
+- **Fallback inteligente** quando offline.
+- **Interface responsiva** com Bootstrap.
+- **Status de conexão** em tempo real.
+- **Atualização automática** a cada 5 segundos.
