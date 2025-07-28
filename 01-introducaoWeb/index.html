@@ -1,22 +1,29 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoramento IoT - Temperatura</title>
+    <title>Monitoramento</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
-    <h1>Monitoramento IoT - Temperatura</h1>
+    <h1>Monitoramento IOT - Temperatura</h1>
 
     <div class="sensor-box">
         <p>Temperatura Atual:</p>
         <p id="temperatura">0.0 °C</p>
-        <button onclick="simularLeitura()">Atualizar</button>
+
+        <p>Umidade:</p>
+        <p id="umidade">0.0 %</p>
+
+        <p id="time">Atualizado em:</p>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"
+        integrity="sha512-nlrGqnXyDyswl/oRH13cQUfr7ZsQs0XxVAZP0Ygs1hzJcq0PiBgTzqnI3YSEFosXOPznrul6lDYcwVvc7gX0UA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="./js/script.js"></script>
 </body>
 
